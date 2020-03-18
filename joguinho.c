@@ -1,14 +1,17 @@
 #include <GL/glew.h>
 #include <GL/freeglut.h>
 #include <stdio.h>
-#include <stdlib.h>
-
-int pause=0;
-int direita;
-int esquerda;
 
 void draw(){
-	
+	glClear(GL_COLOR_BUFFER_BIT);
+	glColor3f(1,0,0);
+	glBegin(GL_QUADS);
+		glVertex3f(20,20,0);
+		glVertex3f(80,20,0);
+		glVertex3f(80,80,0);
+		glVertex3f(20,80,0);
+	glEnd();
+	glutSwapBuffers();
 }
 
 void setup(){
@@ -28,40 +31,23 @@ void reshape(int width, int height)
 void keyboard(unsigned char key, int x, int y){
 	switch(key){
 		case 27:
-			printf("Deseja mesmo sair?\n");
-			if()
+			//printf("Deseja mesmo sair?\n");
+			//if()
 				exit(0);
 			break;
 		case 'p':
 		case 'P':
-			if(pause==0)
-				pause=1;
-			else
-				pause=0;''
 			break;
 		default:
 			break;
 	}
 }
 
-void specialKeyboard(unsigned char key, int x, int y){
+void specialKeyboard(int key, int x, int y){
 	switch(key){
 		case GLUT_KEY_LEFT:
-			esquerda=1;
 			break;
 		case GLUT_KEY_RIGHT:
-			direita=1;
-			break;
-	}
-}
-
-void specialKeyboardUp(unsigned char key, int x, int y){
-	switch(key){
-		case GLUT_KEY_LEFT:
-			esquerda=0;
-			break;
-		case GLUT_KEY_RIGHT:
-			direita=0;
 			break;
 	}
 }
@@ -73,12 +59,11 @@ int main(int argc, char **argv){
 	glutInitDisplayMode(GLUT_DOUBLE | GLUT_RGBA);
 	glutInitWindowPosition(100,100);
 	glutInitWindowSize(500,500);
-	glutCreateWindow("Quadrado de quadrados");
+	glutCreateWindow("Galaxian");
 	glutDisplayFunc(draw);
 	glutReshapeFunc(reshape);
 	glutKeyboardFunc(keyboard);
-	glutSpecialFunc(specialKeyboard)
-	glutSpecialUpFunc(specialKeyboardUp);
+	glutSpecialFunc(specialKeyboard);
 	setup();
 	glutMainLoop();
 }
