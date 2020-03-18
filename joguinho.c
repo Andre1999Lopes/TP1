@@ -2,16 +2,12 @@
 #include <GL/freeglut.h>
 #include <stdio.h>
 
+int pause=0;
+int direita;
+int esquerda;
+
 void draw(){
-	glClear(GL_COLOR_BUFFER_BIT);
-	glColor3f(tom,1,tom);
-	glBegin(GL_QUADS);
-		glVertex3f(20,20,0);
-		glVertex3f(80,20,0);
-		glVertex3f(80,80,0);
-		glVertex3f(20,80,0);
-	glEnd();
-	glutSwapBuffers();
+	
 }
 
 void setup(){
@@ -37,6 +33,10 @@ void keyboard(unsigned char key, int x, int y){
 			break;
 		case 'p':
 		case 'P':
+			if(pause==0)
+				pause=1;
+			else
+				pause=0;''
 			break;
 		default:
 			break;
@@ -46,8 +46,21 @@ void keyboard(unsigned char key, int x, int y){
 void specialKeyboard(unsigned char key, int x, int y){
 	switch(key){
 		case GLUT_KEY_LEFT:
+			esquerda=1;
 			break;
 		case GLUT_KEY_RIGHT:
+			direita=1;
+			break;
+	}
+}
+
+void specialKeyboardUp(unsigned char key, int x, int y){
+	switch(key){
+		case GLUT_KEY_LEFT:
+			esquerda=0;
+			break;
+		case GLUT_KEY_RIGHT:
+			direita=0;
 			break;
 	}
 }
@@ -63,7 +76,8 @@ int main(int argc, char **argv){
 	glutDisplayFunc(draw);
 	glutReshapeFunc(reshape);
 	glutKeyboardFunc(keyboard);
-	glutSpecialFunc(specialKeyboard);
+	glutSpecialFunc(specialKeyboard)
+	glutSpecialUpFunc(specialKeyboardUp);
 	setup();
 	glutMainLoop();
 }
