@@ -25,6 +25,7 @@ typedef struct Enemies{
 	int larg;
 	int alt;
 	GLuint textura;
+	int indice;
 } Enemies;
 
 Player jogador;
@@ -73,9 +74,11 @@ void iniciarTexturas(){
 }
 
 void setup(){
-	glClearColor(1,1,1,1);
+	glClearColor(0,0,0,1);
 	iniciarJogador();
 	//iniciarTexturas();
+	glEnable(GL_BLEND );
+    glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 }
 
 void reshape(int width, int height){
@@ -92,6 +95,23 @@ void draw(){
 	glColor3f(1,1,1);
 	desenharRetanguloTextura(jogador.posicaoX,jogador.posicaoY,jogador.larg,jogador.alt,jogador.textura);
 	glutSwapBuffers();
+}
+
+void atira(int x, int y){
+	glClear(GL_COLOR_BUFFER_BIT);
+	glColor3f(1.0, 0.0, 0.0);
+	glPushMatrix();
+	glTranslatef (x, y, 0.0);
+    glBegin(GL_POLYGON); 
+        glVertex3f(-5, 30, 0);
+        glVertex3f(5, 30, 0);
+        glVertex3f(5, -30, 0);
+        glVertex3f(-5, -30, 0);
+                
+        glEnd();
+   glPopMatrix();
+   glutSwapBuffers();
+
 }
 void keyboard(unsigned char key, int x, int y){
 	switch(key){
@@ -110,6 +130,8 @@ void keyboard(unsigned char key, int x, int y){
 			break;
 		case 32: //barra de espaço
 			//atirar
+			atira(jogador.posicaoX, jogador.posicaoY);
+			break;
 		case 'p':
 		case 'P':
 			if(pausa==0)
@@ -169,9 +191,11 @@ int main(int argc, char **argv){
 	glutInit(&argc, argv);
 	glutInitDisplayMode(GLUT_DOUBLE | GLUT_RGBA);
 	glutInitWindowPosition(0,0);
+
 	glutInitWindowSize(1920,1080);
 	glutCreateWindow("Galaxian");
 	setup();
+
 	glutDisplayFunc(draw);
 	glutReshapeFunc(reshape);
 	glutKeyboardFunc(keyboard);
