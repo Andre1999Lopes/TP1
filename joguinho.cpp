@@ -75,6 +75,7 @@ void desenharRetanguloTextura(float x, float y, float larg, float alt, GLuint te
         glEnd();
     glPopMatrix();
     glDisable(GL_TEXTURE_2D);
+    glFlush();
 }
 
 void iniciarTexturas(){
@@ -115,8 +116,11 @@ void atira(int x, int y){
 }
 
 void desenhaTiro(){
+	for(int i = 0; i < bullets.size();i++){
+		if(bullets[i].y>= 1080)
+			bullets.erase(bullets.begin()+i);
+	}
 	for(int i = 0; i < bullets.size(); i++){
-		//glClear(GL_COLOR_BUFFER_BIT);
 		glColor3f(1.0, 0.0, 0.0);
 		glPushMatrix();
 		glTranslatef (bullets[i].x, bullets[i].y, 0.0);
@@ -127,10 +131,9 @@ void desenhaTiro(){
 	        glVertex3f(-5, -30, 0);
 	        glEnd();
 	   glPopMatrix();
-	   glutSwapBuffers();
-	   bullets[i].y+=10;	
+	   bullets[i].y+=10;
+
 	}
-	//glClear(GL_COLOR_BUFFER_BIT);
 }
 void keyboard(unsigned char key, int x, int y){
 	switch(key){
