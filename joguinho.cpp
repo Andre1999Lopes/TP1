@@ -5,6 +5,8 @@
 #include <stdio.h>
 #include <vector>
 
+using namespace std;
+void desenhaTiro();
 int pausa=0;
 int direita;
 int esquerda;
@@ -29,10 +31,11 @@ typedef struct Enemies{
 	GLuint textura;
 	int indice;
 } Enemies;
-typedef struct Tiro{
+typedef struct Bullet{
 	float x;
 	float y;
-}Tiro;
+}Bullet;
+vector<Bullet> bullets;
 Player jogador;
 Enemies inimigos[40];
 
@@ -99,24 +102,35 @@ void draw(){
 	glClear(GL_COLOR_BUFFER_BIT);
 	glColor3f(1,1,1);
 	desenharRetanguloTextura(jogador.posicaoX,jogador.posicaoY,jogador.larg,jogador.alt,jogador.textura);
+	desenhaTiro();
+	
 	glutSwapBuffers();
 }
 
 void atira(int x, int y){
-	glClear(GL_COLOR_BUFFER_BIT);
-	glColor3f(1.0, 0.0, 0.0);
-	glPushMatrix();
-	glTranslatef (x, y, 0.0);
-    glBegin(GL_POLYGON); 
-        glVertex3f(-5, 30, 0);
-        glVertex3f(5, 30, 0);
-        glVertex3f(5, -30, 0);
-        glVertex3f(-5, -30, 0);
-                
-        glEnd();
-   glPopMatrix();
-   glutSwapBuffers();
+	Bullet bullet;
+	bullet.x = x;
+	bullet.y = y;
+	bullets.push_back(bullet);
+}
 
+void desenhaTiro(){
+	for(int i = 0; i < bullets.size(); i++){
+		//glClear(GL_COLOR_BUFFER_BIT);
+		glColor3f(1.0, 0.0, 0.0);
+		glPushMatrix();
+		glTranslatef (bullets[i].x, bullets[i].y, 0.0);
+	    glBegin(GL_POLYGON); 
+	        glVertex3f(-5, 30, 0);
+	        glVertex3f(5, 30, 0);
+	        glVertex3f(5, -30, 0);
+	        glVertex3f(-5, -30, 0);
+	        glEnd();
+	   glPopMatrix();
+	   glutSwapBuffers();
+	   bullets[i].y+=10;	
+	}
+	//glClear(GL_COLOR_BUFFER_BIT);
 }
 void keyboard(unsigned char key, int x, int y){
 	switch(key){
@@ -188,6 +202,7 @@ void specialKeyboardUp(int key, int x, int y){
 
 void atualizaCena(int tempo){
 	mover();
+	
 	glutPostRedisplay();
 	glutTimerFunc(33, atualizaCena, 0);
 }
