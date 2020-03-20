@@ -3,17 +3,25 @@
 #include <GL/freeglut.h>
 #include <stdlib.h>
 #include <stdio.h>
+#include <stdbool.h>
 #include <vector>
+#define vetorInimigos 60
 
 using namespace std;
 void desenhaTiro();
+GLuint carregaTexturas(const char *arquivo);
+void verificaPosicao();
+GLboolean checarColisao();
 int pausa=0;
 int direita;
 int esquerda;
 float larguraTela=1920;
 float alturaTela=1080;
-float movimento=10;
+float movimentoJogador=10;
+float movimentoInimigos=4;
 int atirou = 0;
+float incrementoX=0;
+float decrementoY=0;
 
 typedef struct Player{
 	float posicaoX;
@@ -25,25 +33,82 @@ typedef struct Player{
 } Player;
 
 typedef struct Enemies{
-	float posicao;
-	int larg;
-	int alt;
+	float posicaoX;
+	float posicaoY;
+	int larg=50;
+	int alt=50;
 	GLuint textura;
-	int indice;
 } Enemies;
+
 typedef struct Bullet{
 	float x;
 	float y;
 }Bullet;
+
 vector<Bullet> bullets;
 Player jogador;
-Enemies inimigos[40];
+vector<Enemies> inimigos;
+
+void verificaPosicao(){
+	for(int i=0;i<inimigos.size();i++){
+		if(inimigos[i].posicaoX>=1720){
+			movimentoInimigos*=-1;
+			for(int j=0;j<inimigos.size();j++){
+				inimigos[j].posicaoY-=20;
+			}
+			break;
+		}
+		else if(inimigos[i].posicaoX<=200){
+			movimentoInimigos*=-1;
+			for(int j=0;j<inimigos.size();j++){
+				inimigos[j].posicaoY-=20;
+			}
+			break;
+		}
+	}
+}
+
+void moverNaves(){
+	for(int i=0;i<inimigos.size();i++){
+		inimigos[i].posicaoX+=movimentoInimigos;
+	}
+}
+
+void iniciarInimigos(){
+	int cont=0;
+	for(int i=0;i<vetorInimigos;i++){
+		Enemies inimigo;
+		inimigo.posicaoX=500+incrementoX;
+		inimigo.posicaoY=980-decrementoY;
+		inimigo.textura = carregaTexturas("nave1.png");
+		incrementoX+=60;
+		cont++;
+		inimigos.push_back(inimigo);
+		if(cont==15){
+			decrementoY+=60;
+			incrementoX=0;
+			cont=0;
+		}
+	}
+}
+
+GLboolean checarColisao(Enemies enemy, Bullet bala){
+	bool colisaoX = (enemy.posicaoX + enemy.larg >= bala.x) && (bala.x + 10 >= enemy.posicaoX);
+    bool colisaoY = (enemy.posicaoY + enemy.alt >= bala.y) && (bala.y + 60 >= enemy.posicaoY);
+	return colisaoX && colisaoY;
+}
 
 void mover(){
 	if(direita==1 && jogador.posicaoX<1700)
-		jogador.posicaoX+=movimento;
+		jogador.posicaoX+=movimentoJogador;
 	if(esquerda==1 && jogador.posicaoX>200)
-		jogador.posicaoX-=movimento;
+		jogador.posicaoX-=movimentoJogador;
+}
+
+GLboolean checarVitoria(){
+	if(inimigos.size()==0)
+		return true;
+	return false;
 }
 
 GLuint carregaTexturas(const char *arquivo){
@@ -85,6 +150,7 @@ void iniciarTexturas(){
 void setup(){
 	glClearColor(0,0,0,1);
 	iniciarJogador();
+	iniciarInimigos();
 	//iniciarTexturas();
 	glEnable(GL_BLEND );
     glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
@@ -103,6 +169,9 @@ void draw(){
 	glClear(GL_COLOR_BUFFER_BIT);
 	glColor3f(1,1,1);
 	desenharRetanguloTextura(jogador.posicaoX,jogador.posicaoY,jogador.larg,jogador.alt,jogador.textura);
+		for(int i=0;i<inimigos.size();i++){
+		desenharRetanguloTextura(inimigos[i].posicaoX,inimigos[i].posicaoY,inimigos[i].larg,inimigos[i].alt,inimigos[i].textura);
+	}
 	desenhaTiro();
 	
 	glutSwapBuffers();
@@ -125,14 +194,13 @@ void desenhaTiro(){
 		glPushMatrix();
 		glTranslatef (bullets[i].x, bullets[i].y, 0.0);
 	    glBegin(GL_POLYGON); 
-	        glVertex3f(-5, 30, 0);
-	        glVertex3f(5, 30, 0);
-	        glVertex3f(5, -30, 0);
-	        glVertex3f(-5, -30, 0);
+	        glVertex3f(-2, 15, 0);
+	        glVertex3f(2, 15, 0);
+	        glVertex3f(2, -15, 0);
+	        glVertex3f(-2, -15, 0);
 	        glEnd();
 	   glPopMatrix();
-	   bullets[i].y+=10;
-
+	   bullets[i].y+=25;
 	}
 }
 void keyboard(unsigned char key, int x, int y){
@@ -204,8 +272,19 @@ void specialKeyboardUp(int key, int x, int y){
 }
 
 void atualizaCena(int tempo){
+	for(int i=0;i<inimigos.size();i++){
+		for(int j=0;j<bullets.size();j++){
+			if(checarColisao(inimigos[i],bullets[j])){
+				bullets.erase(bullets.begin()+j);
+				inimigos.erase(inimigos.begin()+i);
+			}
+		}
+	}
+	if(checarVitoria())
+		exit(0); // aqui vai ficar a tela de vitória e td mais
 	mover();
-	
+	verificaPosicao();
+	moverNaves();
 	glutPostRedisplay();
 	glutTimerFunc(33, atualizaCena, 0);
 }
