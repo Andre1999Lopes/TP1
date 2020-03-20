@@ -3,6 +3,7 @@
 #include <GL/freeglut.h>
 #include <stdlib.h>
 #include <stdio.h>
+#include <vector>
 
 int pausa=0;
 int direita;
@@ -10,6 +11,7 @@ int esquerda;
 float larguraTela=1920;
 float alturaTela=1080;
 float movimento=10;
+int atirou = 0;
 
 typedef struct Player{
 	float posicaoX;
@@ -27,7 +29,10 @@ typedef struct Enemies{
 	GLuint textura;
 	int indice;
 } Enemies;
-
+typedef struct Tiro{
+	float x;
+	float y;
+}Tiro;
 Player jogador;
 Enemies inimigos[40];
 
