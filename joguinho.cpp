@@ -194,14 +194,13 @@ void desenhaTiro(){
 		glPushMatrix();
 		glTranslatef (bullets[i].x, bullets[i].y, 0.0);
 	    glBegin(GL_POLYGON); 
-	        glVertex3f(-5, 30, 0);
-	        glVertex3f(5, 30, 0);
-	        glVertex3f(5, -30, 0);
-	        glVertex3f(-5, -30, 0);
+	        glVertex3f(-2, 15, 0);
+	        glVertex3f(2, 15, 0);
+	        glVertex3f(2, -15, 0);
+	        glVertex3f(-2, -15, 0);
 	        glEnd();
 	   glPopMatrix();
-	   bullets[i].y+=10;
-
+	   bullets[i].y+=25;
 	}
 }
 void keyboard(unsigned char key, int x, int y){
