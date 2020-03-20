@@ -3,6 +3,7 @@
 #include <GL/freeglut.h>
 #include <stdlib.h>
 #include <stdio.h>
+#include <stdbool.h>
 #include <vector>
 #define vetorInimigos 60
 
@@ -10,6 +11,7 @@ using namespace std;
 void desenhaTiro();
 GLuint carregaTexturas(const char *arquivo);
 void verificaPosicao();
+GLboolean checarColisao();
 int pausa=0;
 int direita;
 int esquerda;
@@ -90,11 +92,23 @@ void iniciarInimigos(){
 	}
 }
 
+GLboolean checarColisao(Enemies enemy, Bullet bala){
+	bool colisaoX = (enemy.posicaoX + enemy.larg >= bala.x) && (bala.x + 10 >= enemy.posicaoX);
+    bool colisaoY = (enemy.posicaoY + enemy.alt >= bala.y) && (bala.y + 60 >= enemy.posicaoY);
+	return colisaoX && colisaoY;
+}
+
 void mover(){
 	if(direita==1 && jogador.posicaoX<1700)
 		jogador.posicaoX+=movimentoJogador;
 	if(esquerda==1 && jogador.posicaoX>200)
 		jogador.posicaoX-=movimentoJogador;
+}
+
+GLboolean checarVitoria(){
+	if(inimigos.size()==0)
+		return true;
+	return false;
 }
 
 GLuint carregaTexturas(const char *arquivo){
@@ -259,6 +273,16 @@ void specialKeyboardUp(int key, int x, int y){
 }
 
 void atualizaCena(int tempo){
+	for(int i=0;i<inimigos.size();i++){
+		for(int j=0;j<bullets.size();j++){
+			if(checarColisao(inimigos[i],bullets[j])){
+				bullets.erase(bullets.begin()+j);
+				inimigos.erase(inimigos.begin()+i);
+			}
+		}
+	}
+	if(checarVitoria())
+		exit(0); // aqui vai ficar a tela de vitória e td mais
 	mover();
 	verificaPosicao();
 	moverNaves();
