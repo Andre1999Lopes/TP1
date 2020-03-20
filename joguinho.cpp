@@ -4,9 +4,11 @@
 #include <stdlib.h>
 #include <stdio.h>
 #include <vector>
+#define vetorInimigos 60
 
 using namespace std;
 void desenhaTiro();
+GLuint carregaTexturas(const char *arquivo);
 int pausa=0;
 int direita;
 int esquerda;
@@ -14,6 +16,8 @@ float larguraTela=1920;
 float alturaTela=1080;
 float movimento=10;
 int atirou = 0;
+float incrementoX=0;
+float decrementoY=0;
 
 typedef struct Player{
 	float posicaoX;
@@ -25,19 +29,39 @@ typedef struct Player{
 } Player;
 
 typedef struct Enemies{
-	float posicao;
-	int larg;
-	int alt;
+	float posicaoX;
+	float posicaoY;
+	int larg=50;
+	int alt=50;
 	GLuint textura;
-	int indice;
 } Enemies;
+
 typedef struct Bullet{
 	float x;
 	float y;
 }Bullet;
+
 vector<Bullet> bullets;
 Player jogador;
-Enemies inimigos[40];
+vector<Enemies> inimigos;
+
+void iniciarInimigos(){
+	int cont=0;
+	for(int i=0;i<vetorInimigos;i++){
+		Enemies inimigo;
+		inimigo.posicaoX=500+incrementoX;
+		inimigo.posicaoY=980-decrementoY;
+		inimigo.textura = carregaTexturas("nave1.png");
+		incrementoX+=60;
+		cont++;
+		inimigos.push_back(inimigo);
+		if(cont==15){
+			decrementoY+=60;
+			incrementoX=0;
+			cont=0;
+		}
+	}
+}
 
 void mover(){
 	if(direita==1 && jogador.posicaoX<1700)
@@ -85,6 +109,7 @@ void iniciarTexturas(){
 void setup(){
 	glClearColor(0,0,0,1);
 	iniciarJogador();
+	iniciarInimigos();
 	//iniciarTexturas();
 	glEnable(GL_BLEND );
     glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
@@ -103,6 +128,9 @@ void draw(){
 	glClear(GL_COLOR_BUFFER_BIT);
 	glColor3f(1,1,1);
 	desenharRetanguloTextura(jogador.posicaoX,jogador.posicaoY,jogador.larg,jogador.alt,jogador.textura);
+		for(int i=0;i<inimigos.size();i++){
+		desenharRetanguloTextura(inimigos[i].posicaoX,inimigos[i].posicaoY,inimigos[i].larg,inimigos[i].alt,inimigos[i].textura);
+	}
 	desenhaTiro();
 	
 	glutSwapBuffers();
