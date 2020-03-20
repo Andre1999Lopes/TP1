@@ -9,12 +9,14 @@
 using namespace std;
 void desenhaTiro();
 GLuint carregaTexturas(const char *arquivo);
+void verificaPosicao();
 int pausa=0;
 int direita;
 int esquerda;
 float larguraTela=1920;
 float alturaTela=1080;
-float movimento=10;
+float movimentoJogador=10;
+float movimentoInimigos=4;
 int atirou = 0;
 float incrementoX=0;
 float decrementoY=0;
@@ -45,6 +47,31 @@ vector<Bullet> bullets;
 Player jogador;
 vector<Enemies> inimigos;
 
+void verificaPosicao(){
+	for(int i=0;i<inimigos.size();i++){
+		if(inimigos[i].posicaoX>=1720){
+			movimentoInimigos*=-1;
+			for(int j=0;j<inimigos.size();j++){
+				inimigos[j].posicaoY-=20;
+			}
+			break;
+		}
+		else if(inimigos[i].posicaoX<=200){
+			movimentoInimigos*=-1;
+			for(int j=0;j<inimigos.size();j++){
+				inimigos[j].posicaoY-=20;
+			}
+			break;
+		}
+	}
+}
+
+void moverNaves(){
+	for(int i=0;i<inimigos.size();i++){
+		inimigos[i].posicaoX+=movimentoInimigos;
+	}
+}
+
 void iniciarInimigos(){
 	int cont=0;
 	for(int i=0;i<vetorInimigos;i++){
@@ -65,9 +92,9 @@ void iniciarInimigos(){
 
 void mover(){
 	if(direita==1 && jogador.posicaoX<1700)
-		jogador.posicaoX+=movimento;
+		jogador.posicaoX+=movimentoJogador;
 	if(esquerda==1 && jogador.posicaoX>200)
-		jogador.posicaoX-=movimento;
+		jogador.posicaoX-=movimentoJogador;
 }
 
 GLuint carregaTexturas(const char *arquivo){
@@ -233,7 +260,8 @@ void specialKeyboardUp(int key, int x, int y){
 
 void atualizaCena(int tempo){
 	mover();
-	
+	verificaPosicao();
+	moverNaves();
 	glutPostRedisplay();
 	glutTimerFunc(33, atualizaCena, 0);
 }
