@@ -19,9 +19,9 @@ float larguraTela=1920;
 float alturaTela=1080;
 float movimentoJogador=10;
 float movimentoInimigos=4;
-int atirou = 0;
 float incrementoX=0;
 float decrementoY=0;
+bool podeAtirar = true;
 
 typedef struct Player{
 	float posicaoX;
@@ -176,12 +176,18 @@ void draw(){
 	
 	glutSwapBuffers();
 }
+void trocaValorAtira(int x){
+	if(podeAtirar)
+		podeAtirar = false;
+	else
+		podeAtirar = true;
+}
 
 void atira(int x, int y){
-	Bullet bullet;
-	bullet.x = x;
-	bullet.y = y;
-	bullets.push_back(bullet);
+		Bullet bullet;
+		bullet.x = x;
+		bullet.y = y;
+		bullets.push_back(bullet);
 }
 
 void desenhaTiro(){
@@ -220,7 +226,11 @@ void keyboard(unsigned char key, int x, int y){
 			break;
 		case 32: //barra de espaço
 			//atirar
-			atira(jogador.posicaoX, jogador.posicaoY);
+			if(podeAtirar){
+				atira(jogador.posicaoX, jogador.posicaoY);
+				trocaValorAtira(0);
+				glutTimerFunc(2000,trocaValorAtira,0);
+			}
 			break;
 		case 'p':
 		case 'P':
