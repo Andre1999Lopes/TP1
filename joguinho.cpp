@@ -5,6 +5,7 @@
 #include <stdio.h>
 #include <stdbool.h>
 #include <vector>
+#include <unistd.h>
 #define vetorInimigos 60
 
 using namespace std;
@@ -12,6 +13,8 @@ void desenhaTiro();
 GLuint carregaTexturas(const char *arquivo);
 void verificaPosicao();
 GLboolean checarColisao();
+void iniciarJogador();
+void iniciarInimigos();
 int pausa=0;
 int direita;
 int esquerda;
@@ -22,6 +25,9 @@ float movimentoInimigos=4;
 float incrementoX=0;
 float decrementoY=0;
 bool podeAtirar = true;
+int atirou = 0;
+float incrementoX;
+float decrementoY;
 
 typedef struct Player{
 	float posicaoX;
@@ -49,6 +55,15 @@ vector<Bullet> bullets;
 Player jogador;
 vector<Enemies> inimigos;
 
+void resetar(){
+	inimigos.clear();
+	bullets.clear();
+	iniciarJogador();
+	iniciarInimigos();
+	if(movimentoInimigos<0)
+		movimentoInimigos*=-1;
+}
+
 void verificaPosicao(){
 	for(int i=0;i<inimigos.size();i++){
 		if(inimigos[i].posicaoX>=1720){
@@ -75,6 +90,8 @@ void moverNaves(){
 }
 
 void iniciarInimigos(){
+	incrementoX=0;
+	decrementoY=0;
 	int cont=0;
 	for(int i=0;i<vetorInimigos;i++){
 		Enemies inimigo;
@@ -145,6 +162,10 @@ void desenharRetanguloTextura(float x, float y, float larg, float alt, GLuint te
 
 void iniciarTexturas(){
 	//iniciar a textura do fundo, do menu (se tiver) e do restante
+}
+
+void checarPause(){
+
 }
 
 void setup(){
@@ -232,6 +253,9 @@ void keyboard(unsigned char key, int x, int y){
 				glutTimerFunc(2000,trocaValorAtira,0);
 			}
 			break;
+		case 'r':
+		case 'R':
+			resetar();
 		case 'p':
 		case 'P':
 			if(pausa==0)
@@ -293,6 +317,7 @@ void atualizaCena(int tempo){
 	if(checarVitoria())
 		exit(0); // aqui vai ficar a tela de vitória e td mais
 	mover();
+	//checarPause();
 	verificaPosicao();
 	moverNaves();
 	glutPostRedisplay();
