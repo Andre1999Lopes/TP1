@@ -16,18 +16,21 @@ GLboolean checarColisao();
 void iniciarJogador();
 void iniciarInimigos();
 int pausa=0;
+int sair=0;
+int reset=0;
 int direita;
 int esquerda;
 float larguraTela=1920;
 float alturaTela=1080;
 float movimentoJogador=10;
 float movimentoInimigos=4;
-float incrementoX=0;
-float decrementoY=0;
 bool podeAtirar = true;
 int atirou = 0;
 float incrementoX;
 float decrementoY;
+GLuint imagemSair;
+GLuint imagemPause;
+GLuint imagemReset;
 
 typedef struct Player{
 	float posicaoX;
@@ -161,7 +164,9 @@ void desenharRetanguloTextura(float x, float y, float larg, float alt, GLuint te
 }
 
 void iniciarTexturas(){
-	//iniciar a textura do fundo, do menu (se tiver) e do restante
+	imagemSair = carregaTexturas("sair.png");
+	imagemPause = carregaTexturas("pause.png");
+	imagemReset = carregaTexturas("reset.png");
 }
 
 void checarPause(){
@@ -172,7 +177,7 @@ void setup(){
 	glClearColor(0,0,0,1);
 	iniciarJogador();
 	iniciarInimigos();
-	//iniciarTexturas();
+	iniciarTexturas();
 	glEnable(GL_BLEND );
     glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 }
@@ -189,12 +194,19 @@ void reshape(int width, int height){
 void draw(){
 	glClear(GL_COLOR_BUFFER_BIT);
 	glColor3f(1,1,1);
-	desenharRetanguloTextura(jogador.posicaoX,jogador.posicaoY,jogador.larg,jogador.alt,jogador.textura);
+	if(sair==0 && reset==0 && pausa==0){
+		desenharRetanguloTextura(jogador.posicaoX,jogador.posicaoY,jogador.larg,jogador.alt,jogador.textura);
 		for(int i=0;i<inimigos.size();i++){
-		desenharRetanguloTextura(inimigos[i].posicaoX,inimigos[i].posicaoY,inimigos[i].larg,inimigos[i].alt,inimigos[i].textura);
-	}
-	desenhaTiro();
-	
+			desenharRetanguloTextura(inimigos[i].posicaoX,inimigos[i].posicaoY,inimigos[i].larg,inimigos[i].alt,inimigos[i].textura);
+		}
+		desenhaTiro();
+	}	
+	if(sair==1 && reset==0 && pausa==0)
+		desenharRetanguloTextura(960,540,960,540,imagemSair);
+	if(sair==0 && reset==1 && pausa==0)
+		desenharRetanguloTextura(960,540,960,540,imagemReset);
+	if(sair==0 && reset==0 && pausa==1)
+		desenharRetanguloTextura(960,540,960,540,imagemPause);
 	glutSwapBuffers();
 }
 void trocaValorAtira(int x){
@@ -240,25 +252,36 @@ void keyboard(unsigned char key, int x, int y){
 		case 'D':
 			direita=1;
 			break;
-		case 27:
-			//printf("Deseja mesmo sair?\n");
-			//if()
+		case 's':
+		case 'S':
+			if(sair==1 && reset==0)
 				exit(0);
+			else if(sair==0 && reset==1)
+				reset=0;
+				resetar();
 			break;
-		case 32: //barra de espaço
-			//atirar
-			if(podeAtirar){
+		case 'n':
+		case 'N':
+			if(sair==1 && reset==0 && pausa==0)
+				sair=0;
+			else if(sair==0 && reset==1 && pausa==0)
+				reset=0;
+			break;
+		case 27:
+			if(sair==0 && reset==0 && pausa==0)
+				sair=1;
+			break;
+		case 32:
+		    if(bullets.size()==0){
 				atira(jogador.posicaoX, jogador.posicaoY);
-				trocaValorAtira(0);
-				glutTimerFunc(2000,trocaValorAtira,0);
-			}
+		    }
 			break;
 		case 'r':
 		case 'R':
-			resetar();
+			reset=1;
 		case 'p':
 		case 'P':
-			if(pausa==0)
+			if(sair==0 && reset==0 && pausa==0)
 				pausa=1;
 			else
 				pausa=0;
@@ -316,10 +339,12 @@ void atualizaCena(int tempo){
 	}
 	if(checarVitoria())
 		exit(0); // aqui vai ficar a tela de vitória e td mais
-	mover();
-	//checarPause();
-	verificaPosicao();
-	moverNaves();
+	if(sair==0 && reset==0 && pausa==0){
+		mover();
+		//checarPause();
+		verificaPosicao();
+		moverNaves();
+	}
 	glutPostRedisplay();
 	glutTimerFunc(33, atualizaCena, 0);
 }
