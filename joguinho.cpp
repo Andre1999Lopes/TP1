@@ -33,6 +33,7 @@ float decrementoY;
 GLuint imagemSair;
 GLuint imagemPause;
 GLuint imagemReset;
+Mix_Chunk *tiro;
 
 typedef struct Player{
 	float posicaoX;
@@ -175,6 +176,7 @@ void setup(){
 	glClearColor(0,0,0,1);
 	Mix_OpenAudio(44100,MIX_DEFAULT_FORMAT,2,4096);
 	Mix_PlayMusic(Mix_LoadMUS("BattleOfTheHeroes.mp3"), 1);
+	tiro=Mix_LoadWAV("tiro.wav");
 	iniciarJogador();
 	iniciarInimigos();
 	iniciarTexturas();
@@ -287,6 +289,7 @@ void keyboard(unsigned char key, int x, int y){
 		case 32:
 			if(podeAtirar==true){
 				atira(jogador.posicaoX, jogador.posicaoY);
+				Mix_PlayChannel(-1,tiro,0);
 		    	trocaValorAtira(0);
 				glutTimerFunc(1000,trocaValorAtira,0);
 			}
@@ -370,6 +373,8 @@ void atualizaCena(int tempo){
 int main(int argc, char **argv){
 	glutInit(&argc, argv);
 	SDL_Init(SDL_INIT_AUDIO);
+	Mix_Init(MIX_INIT_MP3);
+
 	glutInitDisplayMode(GLUT_DOUBLE | GLUT_RGBA);
 	glutInitWindowPosition(0,0);
 
