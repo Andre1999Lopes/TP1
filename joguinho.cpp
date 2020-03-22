@@ -6,6 +6,8 @@
 #include <stdbool.h>
 #include <vector>
 #include <unistd.h>
+#include <SDL/SDL.h>
+#include <SDL/SDL_mixer.h>
 #define vetorInimigos 60
 
 using namespace std;
@@ -169,12 +171,10 @@ void iniciarTexturas(){
 	imagemReset = carregaTexturas("reset.png");
 }
 
-void checarPause(){
-
-}
-
 void setup(){
 	glClearColor(0,0,0,1);
+	Mix_OpenAudio(44100,MIX_DEFAULT_FORMAT,2,4096);
+	Mix_PlayMusic(Mix_LoadMUS("BattleOfTheHeroes.mp3"), 1);
 	iniciarJogador();
 	iniciarInimigos();
 	iniciarTexturas();
@@ -201,12 +201,18 @@ void draw(){
 		}
 		desenhaTiro();
 	}	
-	if(sair==1 && reset==0 && pausa==0)
+	if(sair==1 && reset==0 && pausa==0){
+		Mix_PauseMusic();
 		desenharRetanguloTextura(960,540,960,540,imagemSair);
-	if(sair==0 && reset==1 && pausa==0)
+	}
+	if(sair==0 && reset==1 && pausa==0){
+		Mix_PauseMusic();
 		desenharRetanguloTextura(960,540,960,540,imagemReset);
-	if(sair==0 && reset==0 && pausa==1)
+	}
+	if(sair==0 && reset==0 && pausa==1){
+		Mix_PauseMusic();
 		desenharRetanguloTextura(960,540,960,540,imagemPause);
+	}
 	glutSwapBuffers();
 }
 void trocaValorAtira(int x){
@@ -256,35 +262,48 @@ void keyboard(unsigned char key, int x, int y){
 		case 'S':
 			if(sair==1 && reset==0)
 				exit(0);
-			else if(sair==0 && reset==1)
+			else if(sair==0 && reset==1){
 				reset=0;
+				Mix_RewindMusic();
 				resetar();
+				Mix_ResumeMusic();
+			}
 			break;
 		case 'n':
 		case 'N':
-			if(sair==1 && reset==0 && pausa==0)
+			if(sair==1 && reset==0 && pausa==0){
 				sair=0;
-			else if(sair==0 && reset==1 && pausa==0)
+				Mix_ResumeMusic();
+			}
+			else if(sair==0 && reset==1 && pausa==0){
 				reset=0;
+				Mix_ResumeMusic();
+			}
 			break;
 		case 27:
 			if(sair==0 && reset==0 && pausa==0)
 				sair=1;
 			break;
 		case 32:
-		    if(bullets.size()==0){
+			if(podeAtirar==true){
 				atira(jogador.posicaoX, jogador.posicaoY);
-		    }
+		    	trocaValorAtira(0);
+				glutTimerFunc(1000,trocaValorAtira,0);
+			}
 			break;
 		case 'r':
 		case 'R':
-			reset=1;
+			if(pausa==0 && sair==0)
+				reset=1;
+			break;
 		case 'p':
 		case 'P':
 			if(sair==0 && reset==0 && pausa==0)
 				pausa=1;
-			else
+			else{
 				pausa=0;
+				Mix_ResumeMusic();
+			}
 			break;
 		default:
 			break;
@@ -341,7 +360,6 @@ void atualizaCena(int tempo){
 		exit(0); // aqui vai ficar a tela de vitória e td mais
 	if(sair==0 && reset==0 && pausa==0){
 		mover();
-		//checarPause();
 		verificaPosicao();
 		moverNaves();
 	}
@@ -351,6 +369,7 @@ void atualizaCena(int tempo){
 
 int main(int argc, char **argv){
 	glutInit(&argc, argv);
+	SDL_Init(SDL_INIT_AUDIO);
 	glutInitDisplayMode(GLUT_DOUBLE | GLUT_RGBA);
 	glutInitWindowPosition(0,0);
 
