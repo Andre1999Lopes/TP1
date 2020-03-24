@@ -5,6 +5,7 @@
 #include <stdio.h>
 #include <stdbool.h>
 #include <vector>
+#include <time.h>
 #include <unistd.h>
 #include <SDL/SDL.h>
 #include <SDL/SDL_mixer.h>
@@ -12,11 +13,13 @@
 
 using namespace std;
 void desenhaTiro();
+void navesAtirar(int valor);
 GLuint carregaTexturas(const char *arquivo);
 void verificaPosicao();
 GLboolean checarColisao();
 void iniciarJogador();
 void iniciarInimigos();
+void desenhaTiroInimigo();
 int pausa=0;
 int sair=0;
 int reset=0;
@@ -30,10 +33,23 @@ bool podeAtirar = true;
 int atirou = 0;
 float incrementoX;
 float decrementoY;
+GLuint imagemIniciar;
 GLuint imagemSair;
 GLuint imagemPause;
 GLuint imagemReset;
+GLuint imagemSairMenu;
+GLuint imagemConfiguracoes;
+GLuint imagemOpcoes;
+GLuint imagemDificil;
+GLuint imagemInstrucao;
+GLuint imagemCredito;
+GLuint imagemLogo;
 Mix_Chunk *tiro;
+Mix_Music *musicaBatalha;
+Mix_Music *musicaMenu;
+enum telas {SPLASH, MENU, OPCOES, CREDITOS, JOJINHO} TELAS;
+int telaAtual=1;
+
 
 typedef struct Player{
 	float posicaoX;
@@ -58,6 +74,7 @@ typedef struct Bullet{
 }Bullet;
 
 vector<Bullet> bullets;
+vector<Bullet> enemyBullets;
 Player jogador;
 vector<Enemies> inimigos;
 
@@ -116,8 +133,20 @@ void iniciarInimigos(){
 }
 
 GLboolean checarColisao(Enemies enemy, Bullet bala){
-	bool colisaoX = (enemy.posicaoX + enemy.larg >= bala.x) && (bala.x + 10 >= enemy.posicaoX);
-    bool colisaoY = (enemy.posicaoY + enemy.alt >= bala.y) && (bala.y + 60 >= enemy.posicaoY);
+	bool colisaoX = (enemy.posicaoX + (enemy.larg)/2 >= (bala.x - 2)) && (bala.x + 2 >= enemy.posicaoX - (enemy.larg)/2);
+    bool colisaoY = (enemy.posicaoY + (enemy.alt)/2 >= (bala.y - 15)) && (bala.y + 15 >= enemy.posicaoY - (enemy.alt)/2);
+	return colisaoX && colisaoY;
+}
+
+GLboolean checarColisaoPlayerBala(Player player, Bullet bala){
+	bool colisaoX = (player.posicaoX + (player.larg)/2 >= bala.x - 2) && (bala.x + 2 >= player.posicaoX - (bala.x)/2);
+    bool colisaoY = (player.posicaoY + (player.alt)/2 >= bala.y - 15) && (bala.y + 15 >= player.posicaoY - (bala.y)/2);
+	return colisaoX && colisaoY;
+}
+
+GLboolean checarColisaoPlayerNaves(Player player, Enemies enemy){
+	bool colisaoX = (player.posicaoX + (player.larg)/2 >= enemy.posicaoX - (enemy.larg)/2) && (enemy.posicaoX + (enemy.larg)/2 >= player.posicaoX - (enemy.larg)/2);
+    bool colisaoY = (player.posicaoY + (player.alt)/2 >= enemy.posicaoY - (enemy.alt)/2) && (enemy.posicaoY + (enemy.larg)/2 >= player.posicaoY - (enemy.alt)/2);
 	return colisaoX && colisaoY;
 }
 
@@ -144,7 +173,7 @@ GLuint carregaTexturas(const char *arquivo){
 void iniciarJogador(){
 	jogador.posicaoX=960;
 	jogador.posicaoY=200;
-	jogador.larg=100;
+	jogador.larg=60;
 	jogador.alt=100;
 	jogador.vida=2;
 	jogador.textura = carregaTexturas("mfalcon.png");
@@ -167,16 +196,25 @@ void desenharRetanguloTextura(float x, float y, float larg, float alt, GLuint te
 }
 
 void iniciarTexturas(){
+	imagemLogo = carregaTexturas("star-wars-logo.png");
+	imagemInstrucao = carregaTexturas("instrucoes.png");
+	imagemOpcoes = carregaTexturas("opcoes.png");
+	imagemConfiguracoes = carregaTexturas("configuracoes.png");
+	imagemIniciar = carregaTexturas("iniciar.png");
 	imagemSair = carregaTexturas("sair.png");
 	imagemPause = carregaTexturas("pause.png");
 	imagemReset = carregaTexturas("reset.png");
+	imagemSairMenu = carregaTexturas("sairMenu.png");
+	imagemCredito = carregaTexturas("creditos.png");
+	imagemDificil = carregaTexturas("dificuldade.png");
 }
 
 void setup(){
 	glClearColor(0,0,0,1);
 	Mix_OpenAudio(44100,MIX_DEFAULT_FORMAT,2,4096);
-	Mix_PlayMusic(Mix_LoadMUS("BattleOfTheHeroes.mp3"), 1);
-	tiro=Mix_LoadWAV("tiro.wav");
+	musicaBatalha=Mix_LoadMUS("BattleOfTheHeroes.mp3");
+	musicaMenu=Mix_LoadMUS("Abertura8bit.mp3");
+	tiro=Mix_LoadWAV("tiroMF.wav");
 	iniciarJogador();
 	iniciarInimigos();
 	iniciarTexturas();
@@ -196,27 +234,41 @@ void reshape(int width, int height){
 void draw(){
 	glClear(GL_COLOR_BUFFER_BIT);
 	glColor3f(1,1,1);
-	if(sair==0 && reset==0 && pausa==0){
-		desenharRetanguloTextura(jogador.posicaoX,jogador.posicaoY,jogador.larg,jogador.alt,jogador.textura);
-		for(int i=0;i<inimigos.size();i++){
-			desenharRetanguloTextura(inimigos[i].posicaoX,inimigos[i].posicaoY,inimigos[i].larg,inimigos[i].alt,inimigos[i].textura);
+	if(telaAtual==0){
+		
+	}
+	if(telaAtual==1){
+		desenharRetanguloTextura(960,800,640,320,imagemLogo);
+		desenharRetanguloTextura(960,540,103,33,imagemIniciar);
+		desenharRetanguloTextura(960,500,115,33,imagemOpcoes);
+		desenharRetanguloTextura(960,460,180,33,imagemInstrucao);
+		desenharRetanguloTextura(960,420,95,33,imagemSairMenu);
+	}
+	if(telaAtual==4){
+		if(sair==0 && reset==0 && pausa==0){
+			desenharRetanguloTextura(jogador.posicaoX,jogador.posicaoY,jogador.larg,jogador.alt,jogador.textura);
+			for(int i=0;i<inimigos.size();i++){
+				desenharRetanguloTextura(inimigos[i].posicaoX,inimigos[i].posicaoY,inimigos[i].larg,inimigos[i].alt,inimigos[i].textura);
+			}
+			desenhaTiro();
+			desenhaTiroInimigo();
+		}	
+		if(sair==1 && reset==0 && pausa==0){
+			Mix_PauseMusic();
+			desenharRetanguloTextura(960,540,960,540,imagemSair);
 		}
-		desenhaTiro();
-	}	
-	if(sair==1 && reset==0 && pausa==0){
-		Mix_PauseMusic();
-		desenharRetanguloTextura(960,540,960,540,imagemSair);
-	}
-	if(sair==0 && reset==1 && pausa==0){
-		Mix_PauseMusic();
-		desenharRetanguloTextura(960,540,960,540,imagemReset);
-	}
-	if(sair==0 && reset==0 && pausa==1){
-		Mix_PauseMusic();
-		desenharRetanguloTextura(960,540,960,540,imagemPause);
+		if(sair==0 && reset==1 && pausa==0){
+			Mix_PauseMusic();
+			desenharRetanguloTextura(960,540,960,540,imagemReset);
+		}
+		if(sair==0 && reset==0 && pausa==1){
+			Mix_PauseMusic();
+			desenharRetanguloTextura(960,540,960,540,imagemPause);
+		}
 	}
 	glutSwapBuffers();
 }
+
 void trocaValorAtira(int x){
 	if(podeAtirar)
 		podeAtirar = false;
@@ -229,6 +281,16 @@ void atira(int x, int y){
 		bullet.x = x;
 		bullet.y = y;
 		bullets.push_back(bullet);
+}
+
+void navesAtirar(int valor){
+	srand(time(0));
+	Bullet enemyBullet;
+	valor = rand()%inimigos.size();
+	enemyBullet.x = inimigos[valor].posicaoX;
+	enemyBullet.y = inimigos[valor].posicaoY;
+	enemyBullets.push_back(enemyBullet);
+	glutTimerFunc(5000,navesAtirar,0);
 }
 
 void desenhaTiro(){
@@ -250,6 +312,27 @@ void desenhaTiro(){
 	   bullets[i].y+=25;
 	}
 }
+
+void desenhaTiroInimigo(){
+	for(int i = 0; i < enemyBullets.size();i++){
+		if(enemyBullets[i].y<=0)
+			enemyBullets.erase(enemyBullets.begin()+i);
+	}
+	for(int i = 0; i < enemyBullets.size(); i++){
+		glColor3f(1.0, 0.0, 0.0);
+		glPushMatrix();
+		glTranslatef (enemyBullets[i].x, enemyBullets[i].y, 0.0);
+	    glBegin(GL_POLYGON); 
+	        glVertex3f(-2, 15, 0);
+	        glVertex3f(2, 15, 0);
+	        glVertex3f(2, -15, 0);
+	        glVertex3f(-2, -15, 0);
+	        glEnd();
+	   glPopMatrix();
+	   enemyBullets[i].y-=25;
+	}
+}
+
 void keyboard(unsigned char key, int x, int y){
 	switch(key){
 		case 'a':
@@ -287,11 +370,13 @@ void keyboard(unsigned char key, int x, int y){
 				sair=1;
 			break;
 		case 32:
-			if(podeAtirar==true){
-				atira(jogador.posicaoX, jogador.posicaoY);
-				Mix_PlayChannel(-1,tiro,0);
-		    	trocaValorAtira(0);
-				glutTimerFunc(1000,trocaValorAtira,0);
+			if(pausa==0 && reset==0 && sair==0){
+				if(podeAtirar==true){
+					atira(jogador.posicaoX, jogador.posicaoY);
+					Mix_PlayChannel(-1,tiro,0);
+			    	trocaValorAtira(0);
+					glutTimerFunc(1000,trocaValorAtira,0);
+				}
 			}
 			break;
 		case 'r':
@@ -352,12 +437,22 @@ void specialKeyboardUp(int key, int x, int y){
 
 void atualizaCena(int tempo){
 	for(int i=0;i<inimigos.size();i++){
+		if(checarColisaoPlayerNaves(jogador,inimigos[i]))
+			exit(0);
 		for(int j=0;j<bullets.size();j++){
 			if(checarColisao(inimigos[i],bullets[j])){
 				bullets.erase(bullets.begin()+j);
 				inimigos.erase(inimigos.begin()+i);
 			}
 		}
+	}
+	for(int i=0;i<enemyBullets.size();i++){
+		if(checarColisaoPlayerBala(jogador,enemyBullets[i])){
+			enemyBullets.erase(enemyBullets.begin()+i);
+			jogador.vida--;
+		}
+		if(jogador.vida==0)
+			exit(0);
 	}
 	if(checarVitoria())
 		exit(0); // aqui vai ficar a tela de vitória e td mais
@@ -379,7 +474,7 @@ int main(int argc, char **argv){
 	glutInitWindowPosition(0,0);
 
 	glutInitWindowSize(1920,1080);
-	glutCreateWindow("Galaxian");
+	glutCreateWindow("Star Wars - the game");
 	setup();
 
 	glutDisplayFunc(draw);
@@ -388,6 +483,8 @@ int main(int argc, char **argv){
 	glutKeyboardUpFunc(keyboardUp);
 	glutSpecialUpFunc(specialKeyboardUp);
 	glutSpecialFunc(specialKeyboard);
+	glutTimerFunc(5000,navesAtirar,0);
 	glutTimerFunc(0,atualizaCena,33);
+
 	glutMainLoop();
 }
