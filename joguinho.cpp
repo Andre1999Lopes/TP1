@@ -31,6 +31,7 @@ float movimentoJogador=10;
 float movimentoInimigos=4;
 bool podeAtirar = true;
 int atirou = 0;
+float alfa=0;
 float incrementoX;
 float decrementoY;
 GLuint imagemIniciar;
@@ -38,18 +39,22 @@ GLuint imagemSair;
 GLuint imagemPause;
 GLuint imagemReset;
 GLuint imagemSairMenu;
-GLuint imagemConfiguracoes;
 GLuint imagemOpcoes;
 GLuint imagemDificil;
 GLuint imagemInstrucao;
 GLuint imagemCredito;
 GLuint imagemLogo;
+GLuint longTime;
 Mix_Chunk *tiro;
 Mix_Music *musicaBatalha;
 Mix_Music *musicaMenu;
 enum telas {SPLASH, MENU, OPCOES, CREDITOS, JOJINHO} TELAS;
-int telaAtual=1;
-
+int telaAtual=0;
+int aux=1;
+float logoYMenu=800;
+float logoXtamanho=640;
+float logoYtamanho=320;
+vector<float> biri;
 
 typedef struct Player{
 	float posicaoX;
@@ -196,10 +201,10 @@ void desenharRetanguloTextura(float x, float y, float larg, float alt, GLuint te
 }
 
 void iniciarTexturas(){
+	longTime = carregaTexturas("a-long-time.png");
 	imagemLogo = carregaTexturas("star-wars-logo.png");
 	imagemInstrucao = carregaTexturas("instrucoes.png");
 	imagemOpcoes = carregaTexturas("opcoes.png");
-	imagemConfiguracoes = carregaTexturas("configuracoes.png");
 	imagemIniciar = carregaTexturas("iniciar.png");
 	imagemSair = carregaTexturas("sair.png");
 	imagemPause = carregaTexturas("pause.png");
@@ -210,7 +215,9 @@ void iniciarTexturas(){
 }
 
 void setup(){
-	glClearColor(0,0,0,1);
+	glClearColor(0,0,0,0);
+	biri.push_back(2500);
+	biri.push_back(1800);
 	Mix_OpenAudio(44100,MIX_DEFAULT_FORMAT,2,4096);
 	musicaBatalha=Mix_LoadMUS("BattleOfTheHeroes.mp3");
 	musicaMenu=Mix_LoadMUS("Abertura8bit.mp3");
@@ -233,9 +240,9 @@ void reshape(int width, int height){
 
 void draw(){
 	glClear(GL_COLOR_BUFFER_BIT);
-	glColor3f(1,1,1);
+	glColor4f(1,1,1,alfa);
 	if(telaAtual==0){
-		
+		desenharRetanguloTextura(960,540,800,412,longTime);
 	}
 	if(telaAtual==1){
 		desenharRetanguloTextura(960,800,640,320,imagemLogo);
@@ -436,30 +443,51 @@ void specialKeyboardUp(int key, int x, int y){
 }
 
 void atualizaCena(int tempo){
-	for(int i=0;i<inimigos.size();i++){
-		if(checarColisaoPlayerNaves(jogador,inimigos[i]))
-			exit(0);
-		for(int j=0;j<bullets.size();j++){
-			if(checarColisao(inimigos[i],bullets[j])){
-				bullets.erase(bullets.begin()+j);
-				inimigos.erase(inimigos.begin()+i);
+	if(telaAtual==0){
+		if(aux!=0){
+			if(alfa<1)
+				alfa+=0.01;
+			printf("%f\n",alfa);
+		}
+		else{
+			if(alfa>0)
+				alfa-=0.01;
+		}
+		if(alfa>=1){
+			aux=0;
+			alfa=0.9999;
+			sleep(4);
+		}
+	}
+	if(telaAtual==1){
+		alfa=1;
+	}
+	if(telaAtual==4){
+		for(int i=0;i<inimigos.size();i++){
+			if(checarColisaoPlayerNaves(jogador,inimigos[i]))
+				exit(0);
+			for(int j=0;j<bullets.size();j++){
+				if(checarColisao(inimigos[i],bullets[j])){
+					bullets.erase(bullets.begin()+j);
+					inimigos.erase(inimigos.begin()+i);
+				}
 			}
 		}
-	}
-	for(int i=0;i<enemyBullets.size();i++){
-		if(checarColisaoPlayerBala(jogador,enemyBullets[i])){
-			enemyBullets.erase(enemyBullets.begin()+i);
-			jogador.vida--;
+		for(int i=0;i<enemyBullets.size();i++){
+			if(checarColisaoPlayerBala(jogador,enemyBullets[i])){
+				enemyBullets.erase(enemyBullets.begin()+i);
+				jogador.vida--;
+			}
+			if(jogador.vida==0)
+				exit(0);
 		}
-		if(jogador.vida==0)
-			exit(0);
-	}
-	if(checarVitoria())
-		exit(0); // aqui vai ficar a tela de vitória e td mais
-	if(sair==0 && reset==0 && pausa==0){
-		mover();
-		verificaPosicao();
-		moverNaves();
+		if(checarVitoria())
+			exit(0); // aqui vai ficar a tela de vitória e td mais
+		if(sair==0 && reset==0 && pausa==0){
+			mover();
+			verificaPosicao();
+			moverNaves();
+		}
 	}
 	glutPostRedisplay();
 	glutTimerFunc(33, atualizaCena, 0);
