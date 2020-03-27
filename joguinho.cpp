@@ -159,7 +159,7 @@ GLboolean checarColisaoPlayerNaves(Player player, Enemies enemy){
     bool colisaoY = (player.posicaoY + (player.alt)/2 >= enemy.posicaoY - (enemy.alt)/2) && (enemy.posicaoY + (enemy.larg)/2 >= player.posicaoY - (enemy.alt)/2);
 	return colisaoX && colisaoY;
 }
-//Função que muda a posição do jogador
+//Função que muda a posição do jogador baseada em uma constante de movimento
 void mover(){
 	if(direita==1 && jogador.posicaoX<1700)
 		jogador.posicaoX+=movimentoJogador;
@@ -273,25 +273,35 @@ void draw(){
 			as opções do menu*/
 			if(aux==1){
 				if(selecao==1)
-					desenhaTexturaEstatica(960,540,103,33,imagemIniciarSel);
+					desenhaTexturaEstatica(960,540,150,33,imagemIniciarSel);
 				else
-					desenhaTexturaEstatica(960,540,103,33,imagemIniciar);
+					desenhaTexturaEstatica(960,540,150,33,imagemIniciar);
 				if(selecao==2)
-					desenhaTexturaEstatica(960,500,115,33,imagemOpcoesSel);
+					desenhaTexturaEstatica(960,485,115,55,imagemOpcoesSel);
 				else
-					desenhaTexturaEstatica(960,500,115,33,imagemOpcoes);
+					desenhaTexturaEstatica(960,485,115,55,imagemOpcoes);
 				if(selecao==3)
-					desenhaTexturaEstatica(960,460,180,33,imagemInstrucaoSel);
+					desenhaTexturaEstatica(960,430,180,55,imagemInstrucaoSel);
 				else
-					desenhaTexturaEstatica(960,460,180,33,imagemInstrucao);
+					desenhaTexturaEstatica(960,430,180,55,imagemInstrucao);
 				if(selecao==4)
-					desenhaTexturaEstatica(960,420,95,33,imagemSairMenuSel);
+					desenhaTexturaEstatica(960,380,95,33,imagemSairMenuSel);
 				else
-					desenhaTexturaEstatica(960,420,95,33,imagemSairMenu);
+					desenhaTexturaEstatica(960,380,95,33,imagemSairMenu);
 			}
 		}
 	}
-	if(telaAtual==4){
+	else if(telaAtual==2){
+		if(selecao==1)
+			desenhaTexturaEstatica(960,540,103,33,imagemDificuldadeSel);
+		else
+			desenhaTexturaEstatica(960,540,103,33,imagemDificuldade);
+		if(selecao==2)
+			desenhaTexturaEstatica(960,540,103,33,imagemCreditoSel);
+		else
+			desenhaTexturaEstatica(960,540,103,33,imagemCredito);
+	}
+	else if(telaAtual==4){
 		if(sair==0 && reset==0 && pausa==0){
 			desenhaTexturaEstatica(jogador.posicaoX,jogador.posicaoY,jogador.larg,jogador.alt,jogador.textura);
 			for(int i=0;i<inimigos.size();i++){
@@ -310,7 +320,7 @@ void draw(){
 		}
 		if(sair==0 && reset==0 && pausa==1){
 			Mix_PauseMusic();
-			desenhaTexturaEstatica(960,540,960,540,imagemPause);
+			desenhaTexturaEstatica(960,540,960,180,imagemPause);
 		}
 	}
 	glutSwapBuffers();
