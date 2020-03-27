@@ -11,6 +11,16 @@
 #include <SDL/SDL_mixer.h>
 #define vetorInimigos 60
 
+/*
+	Fontes das imagens e músicas:
+
+	*Música de batalha: https://www.youtube.com/watch?v=FvG4ZjHbkLg
+	*Música do menu: https://www.youtube.com/watch?v=bOYdk1UY5o8
+	*Efeito sonoro do tiro: 
+	*Imagem logo: 
+	*Fonte das imagens de opções e instruções: joystix monospace
+*/
+
 using namespace std;
 void desenhaTiro();
 void navesAtirar(int valor);
@@ -43,12 +53,14 @@ GLuint imagemOpcoes,imagemOpcoesSel;
 GLuint imagemDificuldade,imagemDificuldadeSel;
 GLuint imagemInstrucao,imagemInstrucaoSel;
 GLuint imagemCredito,imagemCreditoSel;
+GLuint imagemVoltar,imagemVoltarSel;
+GLuint imagemInstrucao1, imagemInstrucao2;
 GLuint imagemLogo;
 GLuint longTime;
 Mix_Chunk *tiro;
 Mix_Music *musicaBatalha;
 Mix_Music *musicaMenu;
-enum telas {SPLASH, MENU, OPCOES, CREDITOS, JOJINHO} TELAS;
+enum telas {SPLASH, MENU, OPCOES, CREDITOS, JOJINHO, INSTRUCOES} TELAS;
 int telaAtual=0;
 int aux=1;
 int selecao=1;
@@ -83,7 +95,7 @@ vector<Bullet> bullets;
 vector<Bullet> enemyBullets;
 Player jogador;
 vector<Enemies> inimigos;
-
+//Função que reinicia o jogador, os inimigos e os recoloca em suas posições iniciais
 void resetar(){
 	inimigos.clear();
 	bullets.clear();
@@ -224,13 +236,17 @@ void iniciarTexturas(){
 	imagemSairMenu = carregaTexturas("sairMenu.png");
 	imagemCredito = carregaTexturas("creditos.png");
 	imagemDificuldade = carregaTexturas("dificuldade.png");
+	imagemVoltar = carregaTexturas("voltar.png");
+	imagemInstrucao1 = carregaTexturas("instrucao1.png");
+	imagemInstrucao2 = carregaTexturas("instrucao2.png");
 
 	imagemIniciarSel = carregaTexturas("iniciarSel.png");
 	imagemOpcoesSel = carregaTexturas("opcoesSel.png");
 	imagemDificuldadeSel = carregaTexturas("dificuldadeSel.png");
-	imagemCreditoSel = carregaTexturas("creditos.png");
+	imagemCreditoSel = carregaTexturas("creditosSel.png");
 	imagemSairMenuSel = carregaTexturas("sairMenuSel.png");
 	imagemInstrucaoSel = carregaTexturas("instrucoesSel.png");
+	imagemVoltarSel = carregaTexturas("voltarSel.png");
 }
 //Função que inicializa o jogo no geral
 void setup(){
@@ -269,7 +285,7 @@ void draw(){
 			desenhaTexturaEstatica(960,540,960,540,imagemSair);
 		else{
 			desenhaTexturaEstatica(960,biri[2],biri[0],biri[1],imagemLogo);
-			/*A variável aux serve para verificar se a introdução do jogo já foi ou não finalizada para que se possa desenhas
+			/*A variável aux serve para verificar se a introdução do jogo já foi ou não finalizada para que se possa desenhar
 			as opções do menu*/
 			if(aux==1){
 				if(selecao==1)
@@ -292,14 +308,19 @@ void draw(){
 		}
 	}
 	else if(telaAtual==2){
+		desenhaTexturaEstatica(960,biri[2],biri[0],biri[1],imagemLogo);
 		if(selecao==1)
-			desenhaTexturaEstatica(960,540,103,33,imagemDificuldadeSel);
+			desenhaTexturaEstatica(960,540,200,33,imagemDificuldadeSel);
 		else
-			desenhaTexturaEstatica(960,540,103,33,imagemDificuldade);
+			desenhaTexturaEstatica(960,540,200,33,imagemDificuldade);
 		if(selecao==2)
-			desenhaTexturaEstatica(960,540,103,33,imagemCreditoSel);
+			desenhaTexturaEstatica(960,490,150,39,imagemCreditoSel);
 		else
-			desenhaTexturaEstatica(960,540,103,33,imagemCredito);
+			desenhaTexturaEstatica(960,490,150,39,imagemCredito);
+		if(selecao==3)
+			desenhaTexturaEstatica(960,440,130,33,imagemVoltarSel);
+		else
+			desenhaTexturaEstatica(960,440,130,33,imagemVoltar);
 	}
 	else if(telaAtual==4){
 		if(sair==0 && reset==0 && pausa==0){
@@ -323,6 +344,10 @@ void draw(){
 			desenhaTexturaEstatica(960,540,960,180,imagemPause);
 		}
 	}
+	else if(telaAtual==5){
+		desenhaTexturaEstatica(960,810,1820,540,imagemInstrucao1);
+		desenhaTexturaEstatica(960,345,1820,385,imagemInstrucao2);
+	}
 	glutSwapBuffers();
 }
 //Função que verifica se o player pode ou não atirar. O tempo muda de acordo com a dificuldade
@@ -342,12 +367,14 @@ void atira(int x, int y){
 //Cria uma bala das naves inimigas
 void navesAtirar(int valor){
 	if(telaAtual==4){
-		srand(time(0));
-		Bullet enemyBullet;
-		valor = rand()%inimigos.size();
-		enemyBullet.x = inimigos[valor].posicaoX;
-		enemyBullet.y = inimigos[valor].posicaoY;
-		enemyBullets.push_back(enemyBullet);
+		if(pausa==0 && reset==0 && sair==0){
+			srand(time(0));
+			Bullet enemyBullet;
+			valor = rand()%inimigos.size();
+			enemyBullet.x = inimigos[valor].posicaoX;
+			enemyBullet.y = inimigos[valor].posicaoY;
+			enemyBullets.push_back(enemyBullet);
+		}
 		glutTimerFunc(5000,navesAtirar,0);
 	}
 }
@@ -404,8 +431,17 @@ void keyboard(unsigned char key, int x, int y){
 			break;
 		case 's':
 		case 'S':
-			if(sair==1 && reset==0)
-				exit(0);
+			if(sair==1 && reset==0){
+				if(telaAtual==4){
+					Mix_HaltMusic();
+					trocaTela(1);
+					tocaMusica();
+					sair=0;
+				}
+				else if(telaAtual==1){
+					exit(0);
+				}
+			}
 			else if(sair==0 && reset==1){
 				reset=0;
 				Mix_RewindMusic();
@@ -424,20 +460,46 @@ void keyboard(unsigned char key, int x, int y){
 				Mix_ResumeMusic();
 			}
 			break;
-		case 13:
-			if(selecao==1 && aux==1){
+		case 13: //enter
+			if(telaAtual==1 && selecao==1 && aux==1){
 				Mix_HaltMusic();
 				trocaTela(4);
 				glutTimerFunc(5000,navesAtirar,0);
 				tocaMusica();
 			}
-			else if(selecao==4 && aux==1){
+			else if(telaAtual==1 && selecao==2 && aux==1){
+				trocaTela(2);
+				selecao=1;
+			}
+			else if(telaAtual==1 && selecao==3 && aux==1){
+				trocaTela(5);
+				selecao=1;
+			}
+			else if(telaAtual==1 && selecao==4 && aux==1){
 				sair=1;
+			}
+			else if(telaAtual==2 && selecao==1){
+
+			}
+			else if(telaAtual==2 && selecao==2){
+
+			}
+			else if(telaAtual==2 && selecao==3){
+				trocaTela(1);
+				selecao=1;
 			}
 			break;
 		case 27:
-			if(sair==0 && reset==0 && pausa==0)
+			if(telaAtual==4 && sair==0 && reset==0 && pausa==0)
 				sair=1;
+			else if(telaAtual==1)
+				sair=1;
+			else if(telaAtual==2)
+				trocaTela(1);
+			else if(telaAtual==5)
+				trocaTela(2);
+			else if(telaAtual==3)
+				trocaTela(2);
 			break;
 		case 32:
 			if(pausa==0 && reset==0 && sair==0){
@@ -492,14 +554,17 @@ void specialKeyboard(int key, int x, int y){
 			direita=1;
 			break;
 		case GLUT_KEY_UP:
-			if(telaAtual==1 && selecao>1){
+			if(telaAtual==1 && selecao>1)
 				selecao--;
-			}
+			else if(telaAtual==2 && selecao>1)
+				selecao--;
 			break;
 		case GLUT_KEY_DOWN:
 			if(telaAtual==1 && selecao<4){
 				selecao++;
 			}
+			else if(telaAtual==2 && selecao<3)
+				selecao++;
 			break;
 	}
 }
@@ -572,7 +637,7 @@ void atualizaCena(int tempo){
 		}
 		if(checarVitoria()){
 			Mix_HaltMusic();
-			telaAtual=1;
+			trocaTela(1);
 			tocaMusica();
 			resetar(); // aqui vai ficar a tela de vitória e td mais
 		}
