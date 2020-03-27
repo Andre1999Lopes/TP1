@@ -54,7 +54,8 @@ GLuint imagemDificuldade,imagemDificuldadeSel;
 GLuint imagemInstrucao,imagemInstrucaoSel;
 GLuint imagemCredito,imagemCreditoSel;
 GLuint imagemVoltar,imagemVoltarSel;
-GLuint imagemInstrucao1, imagemInstrucao2;
+GLuint imagemInstrucoes;
+GLuint imagemOsCreditos;
 GLuint imagemLogo;
 GLuint longTime;
 Mix_Chunk *tiro;
@@ -75,6 +76,8 @@ typedef struct Player{
 	int vida;
 	int larg;
 	int alt;
+	float estado;
+	float tamanho;
 	GLuint textura;
 } Player;
 
@@ -142,7 +145,7 @@ void iniciarInimigos(){
 		Enemies inimigo;
 		inimigo.posicaoX=500+incrementoX;
 		inimigo.posicaoY=980-decrementoY;
-		inimigo.textura = carregaTexturas("nave1.png");
+		inimigo.textura = carregaTexturas("imgs/nave1.png");
 		incrementoX+=60;
 		cont++;
 		inimigos.push_back(inimigo);
@@ -195,10 +198,12 @@ GLuint carregaTexturas(const char *arquivo){
 void iniciarJogador(){
 	jogador.posicaoX=960;
 	jogador.posicaoY=200;
-	jogador.larg=60;
+	jogador.larg=80;
 	jogador.alt=100;
 	jogador.vida=2;
-	jogador.textura = carregaTexturas("mfalcon.png");
+	jogador.estado=1.0;
+	jogador.tamanho=3.0;
+	jogador.textura = carregaTexturas("imgs/mfalconAnimado.png");
 }
 //Função que desenha um retângulo dados a sua posição no eixo X e no eixo Y, sua largura, sua altura e a textura a ser utilizada. Textura estática
 void desenhaTexturaEstatica(float x, float y, float larg, float alt, GLuint textura){
@@ -216,6 +221,23 @@ void desenhaTexturaEstatica(float x, float y, float larg, float alt, GLuint text
     glDisable(GL_TEXTURE_2D);
     glFlush();
 }
+
+void desenhaTexturaAnimada(float x, float y, float larg, float alt, GLuint textura, float tamanho, float estado){
+	glEnable(GL_TEXTURE_2D);
+    glBindTexture(GL_TEXTURE_2D, textura);
+    glPushMatrix();
+        glTranslatef(x, y, 0);
+        glBegin(GL_TRIANGLE_FAN);
+            glTexCoord2f(estado/tamanho,0); glVertex2f(-larg/2, -alt/2);
+            glTexCoord2f((estado+1)/tamanho,0); glVertex2f( larg/2, -alt/2);
+            glTexCoord2f((estado+1)/tamanho,1); glVertex2f( larg/2,  alt/2);
+            glTexCoord2f(estado/tamanho,1); glVertex2f(-larg/2,  alt/2);
+        glEnd();
+    glPopMatrix();
+    glDisable(GL_TEXTURE_2D);
+    glFlush();
+
+}
 //Função que muda a música de acordo com a tela na qual o jogador se encontra
 void tocaMusica(){
 	if(telaAtual==1 && !Mix_PlayingMusic())
@@ -225,28 +247,28 @@ void tocaMusica(){
 }
 //Função que inicializa as texturas do menu
 void iniciarTexturas(){
-	longTime = carregaTexturas("a-long-time.png");
-	imagemLogo = carregaTexturas("star-wars-logo.png");
-	imagemInstrucao = carregaTexturas("instrucoes.png");
-	imagemOpcoes = carregaTexturas("opcoes.png");
-	imagemIniciar = carregaTexturas("iniciar.png");
-	imagemSair = carregaTexturas("sair.png");
-	imagemPause = carregaTexturas("pause.png");
-	imagemReset = carregaTexturas("reset.png");
-	imagemSairMenu = carregaTexturas("sairMenu.png");
-	imagemCredito = carregaTexturas("creditos.png");
-	imagemDificuldade = carregaTexturas("dificuldade.png");
-	imagemVoltar = carregaTexturas("voltar.png");
-	imagemInstrucao1 = carregaTexturas("instrucao1.png");
-	imagemInstrucao2 = carregaTexturas("instrucao2.png");
+	longTime = carregaTexturas("imgs/a-long-time.png");
+	imagemLogo = carregaTexturas("imgs/star-wars-logo.png");
+	imagemInstrucao = carregaTexturas("imgs/instrucoes.png");
+	imagemOpcoes = carregaTexturas("imgs/opcoes.png");
+	imagemIniciar = carregaTexturas("imgs/iniciar.png");
+	imagemSair = carregaTexturas("imgs/sair.png");
+	imagemPause = carregaTexturas("imgs/pause.png");
+	imagemReset = carregaTexturas("imgs/reset.png");
+	imagemSairMenu = carregaTexturas("imgs/sairMenu.png");
+	imagemCredito = carregaTexturas("imgs/creditos.png");
+	imagemDificuldade = carregaTexturas("imgs/dificuldade.png");
+	imagemVoltar = carregaTexturas("imgs/voltar.png");
+	imagemInstrucoes = carregaTexturas("imgs/asInstrucoes.png");
+	imagemOsCreditos = carregaTexturas("imgs/osCreditos.png");
 
-	imagemIniciarSel = carregaTexturas("iniciarSel.png");
-	imagemOpcoesSel = carregaTexturas("opcoesSel.png");
-	imagemDificuldadeSel = carregaTexturas("dificuldadeSel.png");
-	imagemCreditoSel = carregaTexturas("creditosSel.png");
-	imagemSairMenuSel = carregaTexturas("sairMenuSel.png");
-	imagemInstrucaoSel = carregaTexturas("instrucoesSel.png");
-	imagemVoltarSel = carregaTexturas("voltarSel.png");
+	imagemIniciarSel = carregaTexturas("imgs/iniciarSel.png");
+	imagemOpcoesSel = carregaTexturas("imgs/opcoesSel.png");
+	imagemDificuldadeSel = carregaTexturas("imgs/dificuldadeSel.png");
+	imagemCreditoSel = carregaTexturas("imgs/creditosSel.png");
+	imagemSairMenuSel = carregaTexturas("imgs/sairMenuSel.png");
+	imagemInstrucaoSel = carregaTexturas("imgs/instrucoesSel.png");
+	imagemVoltarSel = carregaTexturas("imgs/voltarSel.png");
 }
 //Função que inicializa o jogo no geral
 void setup(){
@@ -255,9 +277,9 @@ void setup(){
 	biri.push_back(1800);
 	biri.push_back(400);
 	Mix_OpenAudio(44100,MIX_DEFAULT_FORMAT,2,4096);
-	musicaBatalha=Mix_LoadMUS("BattleOfTheHeroes.mp3");
-	musicaMenu=Mix_LoadMUS("Abertura8bit.mp3");
-	tiro=Mix_LoadWAV("tiroMF.wav");
+	musicaBatalha=Mix_LoadMUS("songs/BattleOfTheHeroes.mp3");
+	musicaMenu=Mix_LoadMUS("songs/Abertura8bit.mp3");
+	tiro=Mix_LoadWAV("songs/tiroMF.wav");
 	iniciarJogador();
 	iniciarInimigos();
 	iniciarTexturas();
@@ -269,7 +291,7 @@ void reshape(int width, int height){
 	glViewport(0, 0, width, height);
   	glMatrixMode(GL_PROJECTION);
    	glLoadIdentity();
-   	glOrtho(0.0, 1920.0, 0.0, 1080.0, -1.0, 1.0);
+   	glOrtho(0, 1920, 0, 1080, -1, 1);
    	glMatrixMode(GL_MODELVIEW);
    	glLoadIdentity();
 }
@@ -289,9 +311,9 @@ void draw(){
 			as opções do menu*/
 			if(aux==1){
 				if(selecao==1)
-					desenhaTexturaEstatica(960,540,150,33,imagemIniciarSel);
+					desenhaTexturaEstatica(960,540,120,33,imagemIniciarSel);
 				else
-					desenhaTexturaEstatica(960,540,150,33,imagemIniciar);
+					desenhaTexturaEstatica(960,540,120,33,imagemIniciar);
 				if(selecao==2)
 					desenhaTexturaEstatica(960,485,115,55,imagemOpcoesSel);
 				else
@@ -301,9 +323,9 @@ void draw(){
 				else
 					desenhaTexturaEstatica(960,430,180,55,imagemInstrucao);
 				if(selecao==4)
-					desenhaTexturaEstatica(960,380,95,33,imagemSairMenuSel);
+					desenhaTexturaEstatica(960,380,75,33,imagemSairMenuSel);
 				else
-					desenhaTexturaEstatica(960,380,95,33,imagemSairMenu);
+					desenhaTexturaEstatica(960,380,75,33,imagemSairMenu);
 			}
 		}
 	}
@@ -322,9 +344,12 @@ void draw(){
 		else
 			desenhaTexturaEstatica(960,440,130,33,imagemVoltar);
 	}
+	else if(telaAtual==3){
+		desenhaTexturaEstatica(960,540,1820,1020,imagemOsCreditos);
+	}
 	else if(telaAtual==4){
 		if(sair==0 && reset==0 && pausa==0){
-			desenhaTexturaEstatica(jogador.posicaoX,jogador.posicaoY,jogador.larg,jogador.alt,jogador.textura);
+			desenhaTexturaAnimada(jogador.posicaoX,jogador.posicaoY,jogador.larg,jogador.alt,jogador.textura,jogador.tamanho,jogador.estado);
 			for(int i=0;i<inimigos.size();i++){
 				desenhaTexturaEstatica(inimigos[i].posicaoX,inimigos[i].posicaoY,inimigos[i].larg,inimigos[i].alt,inimigos[i].textura);
 			}
@@ -345,8 +370,7 @@ void draw(){
 		}
 	}
 	else if(telaAtual==5){
-		desenhaTexturaEstatica(960,810,1820,540,imagemInstrucao1);
-		desenhaTexturaEstatica(960,345,1820,385,imagemInstrucao2);
+		desenhaTexturaEstatica(960,540,1820,1020,imagemInstrucoes);
 	}
 	glutSwapBuffers();
 }
@@ -424,10 +448,12 @@ void keyboard(unsigned char key, int x, int y){
 		case 'a':
 		case 'A':
 			esquerda=1;
+			jogador.estado=0;
 			break;
 		case 'd':
 		case 'D':
 			direita=1;
+			jogador.estado=2;
 			break;
 		case 's':
 		case 'S':
@@ -482,7 +508,8 @@ void keyboard(unsigned char key, int x, int y){
 
 			}
 			else if(telaAtual==2 && selecao==2){
-
+				trocaTela(3);
+				selecao=1;
 			}
 			else if(telaAtual==2 && selecao==3){
 				trocaTela(1);
@@ -497,7 +524,7 @@ void keyboard(unsigned char key, int x, int y){
 			else if(telaAtual==2)
 				trocaTela(1);
 			else if(telaAtual==5)
-				trocaTela(2);
+				trocaTela(1);
 			else if(telaAtual==3)
 				trocaTela(2);
 			break;
@@ -535,10 +562,12 @@ void keyboardUp(unsigned char key, int x, int y){
 		case 'a':
 		case 'A':
 			esquerda=0;
+			jogador.estado=1;
 			break;
 		case 'd':
 		case 'D':
 			direita=0;
+			jogador.estado=1;
 			break;
 		default:
 			break;
@@ -549,9 +578,11 @@ void specialKeyboard(int key, int x, int y){
 	switch(key){
 		case GLUT_KEY_LEFT:
 			esquerda=1;
+			jogador.estado=0;
 			break;
 		case GLUT_KEY_RIGHT:
 			direita=1;
+			jogador.estado=2;
 			break;
 		case GLUT_KEY_UP:
 			if(telaAtual==1 && selecao>1)
@@ -573,9 +604,11 @@ void specialKeyboardUp(int key, int x, int y){
 	switch(key){
 		case GLUT_KEY_LEFT:
 			esquerda=0;
+			jogador.estado=1;
 			break;
 		case GLUT_KEY_RIGHT:
 			direita=0;
+			jogador.estado=1;
 			break;
 	}
 }
