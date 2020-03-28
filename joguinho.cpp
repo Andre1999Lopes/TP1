@@ -35,6 +35,7 @@ int sair=0;
 int reset=0;
 int direita;
 int esquerda;
+int dificuldade=1;
 float larguraTela=1920;
 float alturaTela=1080;
 float movimentoJogador=10;
@@ -48,6 +49,8 @@ GLuint imagemIniciar,imagemIniciarSel;
 GLuint imagemSair;
 GLuint imagemPause;
 GLuint imagemReset;
+GLuint vitoria;
+GLuint derrota;
 GLuint imagemSairMenu,imagemSairMenuSel;
 GLuint imagemOpcoes,imagemOpcoesSel;
 GLuint imagemDificuldade,imagemDificuldadeSel;
@@ -58,10 +61,11 @@ GLuint imagemInstrucoes;
 GLuint imagemOsCreditos;
 GLuint imagemLogo;
 GLuint longTime;
+GLuint facil,facilSel,medio,medioSel,dificil,dificilSel;
 Mix_Chunk *tiro;
 Mix_Music *musicaBatalha;
 Mix_Music *musicaMenu;
-enum telas {SPLASH, MENU, OPCOES, CREDITOS, JOJINHO, INSTRUCOES} TELAS;
+enum telas {SPLASH, MENU, OPCOES, CREDITOS, JOJINHO, INSTRUCOES, DIFICULDADES} TELAS;
 int telaAtual=0;
 int aux=1;
 int selecao=1;
@@ -261,7 +265,14 @@ void iniciarTexturas(){
 	imagemVoltar = carregaTexturas("imgs/voltar.png");
 	imagemInstrucoes = carregaTexturas("imgs/asInstrucoes.png");
 	imagemOsCreditos = carregaTexturas("imgs/osCreditos.png");
-
+	facil = carregaTexturas("imgs/facil.png");
+	facilSel = carregaTexturas("imgs/facilSel.png");
+	medio = carregaTexturas("imgs/medio.png");
+	medioSel = carregaTexturas("imgs/medioSel.png");
+	dificil = carregaTexturas("imgs/dificil.png");
+	dificilSel = carregaTexturas("imgs/dificilSel.png");
+	vitoria = carregaTexturas("imgs/telaVitoria.png");
+	derrota = carregaTexturas("imgs/telaDerrota.png");
 	imagemIniciarSel = carregaTexturas("imgs/iniciarSel.png");
 	imagemOpcoesSel = carregaTexturas("imgs/opcoesSel.png");
 	imagemDificuldadeSel = carregaTexturas("imgs/dificuldadeSel.png");
@@ -372,6 +383,25 @@ void draw(){
 	else if(telaAtual==5){
 		desenhaTexturaEstatica(960,540,1820,1020,imagemInstrucoes);
 	}
+	else if(telaAtual==6){
+		desenhaTexturaEstatica(960,biri[2],biri[0],biri[1],imagemLogo);
+		if(selecao==1)
+			desenhaTexturaEstatica(960,540,120,39,facilSel);
+		else
+			desenhaTexturaEstatica(960,540,120,39,facil);
+		if(selecao==2)
+			desenhaTexturaEstatica(960,490,120,39,medioSel);
+		else
+			desenhaTexturaEstatica(960,490,120,39,medio);
+		if(selecao==3)
+			desenhaTexturaEstatica(960,440,150,39,dificilSel);
+		else
+			desenhaTexturaEstatica(960,440,150,39,dificil);
+		if(selecao==4)
+			desenhaTexturaEstatica(960,390,130,33,imagemVoltarSel);
+		else
+			desenhaTexturaEstatica(960,390,130,33,imagemVoltar);
+	}
 	glutSwapBuffers();
 }
 //Função que verifica se o player pode ou não atirar. O tempo muda de acordo com a dificuldade
@@ -391,16 +421,18 @@ void atira(int x, int y){
 //Cria uma bala das naves inimigas
 void navesAtirar(int valor){
 	if(telaAtual==4){
-		if(pausa==0 && reset==0 && sair==0){
-			srand(time(0));
-			Bullet enemyBullet;
-			valor = rand()%inimigos.size();
-			enemyBullet.x = inimigos[valor].posicaoX;
-			enemyBullet.y = inimigos[valor].posicaoY;
-			enemyBullets.push_back(enemyBullet);
+		for(int i=0;i<dificuldade;i++){
+			if(pausa==0 && reset==0 && sair==0){
+				srand(time(0));
+				Bullet enemyBullet;
+				valor = rand()%inimigos.size();
+				enemyBullet.x = inimigos[valor].posicaoX;
+				enemyBullet.y = inimigos[valor].posicaoY;
+				enemyBullets.push_back(enemyBullet);
+			}
 		}
-		glutTimerFunc(5000,navesAtirar,0);
 	}
+	glutTimerFunc(5000,navesAtirar,0);
 }
 //Desenha um tiro. Se a posição do tiro ultrapassar a altura máxima da tela, o tiro é apagado da memória
 void desenhaTiro(){
@@ -491,6 +523,7 @@ void keyboard(unsigned char key, int x, int y){
 				Mix_HaltMusic();
 				trocaTela(4);
 				glutTimerFunc(5000,navesAtirar,0);
+				resetar();
 				tocaMusica();
 			}
 			else if(telaAtual==1 && selecao==2 && aux==1){
@@ -505,7 +538,7 @@ void keyboard(unsigned char key, int x, int y){
 				sair=1;
 			}
 			else if(telaAtual==2 && selecao==1){
-
+				trocaTela(6);
 			}
 			else if(telaAtual==2 && selecao==2){
 				trocaTela(3);
@@ -513,6 +546,16 @@ void keyboard(unsigned char key, int x, int y){
 			}
 			else if(telaAtual==2 && selecao==3){
 				trocaTela(1);
+				selecao=1;
+			}
+			else if(telaAtual==6 && selecao==1)
+				dificuldade=1;
+			else if(telaAtual==6 && selecao==2)
+				dificuldade=2;
+			else if(telaAtual==6 && selecao==3)
+				dificuldade=3;
+			else if(telaAtual==6 && selecao==4){
+				trocaTela(2);
 				selecao=1;
 			}
 			break;
@@ -527,6 +570,8 @@ void keyboard(unsigned char key, int x, int y){
 				trocaTela(1);
 			else if(telaAtual==3)
 				trocaTela(2);
+			else if(telaAtual==6)
+				trocaTela(2);
 			break;
 		case 32:
 			if(pausa==0 && reset==0 && sair==0){
@@ -534,7 +579,7 @@ void keyboard(unsigned char key, int x, int y){
 					atira(jogador.posicaoX, jogador.posicaoY);
 					Mix_PlayChannel(-1,tiro,0);
 			    	trocaValorAtira(0);
-					glutTimerFunc(1000,trocaValorAtira,0);
+					glutTimerFunc(dificuldade*1000,trocaValorAtira,0);
 				}
 			}
 			break;
@@ -589,12 +634,15 @@ void specialKeyboard(int key, int x, int y){
 				selecao--;
 			else if(telaAtual==2 && selecao>1)
 				selecao--;
+			else if(telaAtual==6 && selecao>1)
+				selecao--;
 			break;
 		case GLUT_KEY_DOWN:
-			if(telaAtual==1 && selecao<4){
+			if(telaAtual==1 && selecao<4)
 				selecao++;
-			}
 			else if(telaAtual==2 && selecao<3)
+				selecao++;
+			else if(telaAtual==6 && selecao<4)
 				selecao++;
 			break;
 	}
