@@ -69,6 +69,8 @@ Mix_Music *musicaMenu;
 enum telas {SPLASH, MENU, OPCOES, CREDITOS, JOJINHO, INSTRUCOES, DIFICULDADES} TELAS;
 int telaAtual=0;
 int aux=1;
+int venceu=0;
+int perdeu=0;
 int selecao=1;
 float logoYMenu=800;
 float logoXtamanho=640;
@@ -245,10 +247,14 @@ void desenhaTexturaAnimada(float x, float y, float larg, float alt, GLuint textu
 }
 //Função que muda a música de acordo com a tela na qual o jogador se encontra
 void tocaMusica(){
-	if(telaAtual==1 && !Mix_PlayingMusic())
+	if(telaAtual==1 && !Mix_PlayingMusic()){
 		Mix_PlayMusic(musicaMenu,-1);
-	else if(telaAtual==4 && !Mix_PlayingMusic())
+		Mix_VolumeMusic(32);
+	}
+	else if(telaAtual==4 && !Mix_PlayingMusic()){
 		Mix_PlayMusic(musicaBatalha,-1);
+		Mix_VolumeMusic(96);
+	}
 }
 //Função que inicializa as texturas do menu
 void iniciarTexturas(){
@@ -361,26 +367,36 @@ void draw(){
 		desenhaTexturaEstatica(960,540,1820,1020,imagemOsCreditos);
 	}
 	else if(telaAtual==4){
-		if(sair==0 && reset==0 && pausa==0){
+		if(sair==0 && reset==0 && pausa==0 && venceu==0 && perdeu==0){
 			desenhaTexturaAnimada(jogador.posicaoX,jogador.posicaoY,jogador.larg,jogador.alt,jogador.textura,jogador.tamanho,jogador.estado);
 			for(int i=0;i<inimigos.size();i++){
 				desenhaTexturaEstatica(inimigos[i].posicaoX,inimigos[i].posicaoY,inimigos[i].larg,inimigos[i].alt,inimigos[i].textura);
 			}
 			desenhaTiro();
 			desenhaTiroInimigo();
+			int x=100;
+			glColor3f(1,1,1);
+			for(int j=0;j<jogador.vida;j++){
+				desenhaTexturaAnimada(x,100,40,50,jogador.textura,jogador.tamanho,1.0);
+				x+=60;
+			}
 		}	
-		if(sair==1 && reset==0 && pausa==0){
+		if(sair==1 && reset==0 && pausa==0 && venceu==0 && perdeu==0){
 			Mix_PauseMusic();
 			desenhaTexturaEstatica(960,540,960,540,imagemSair);
 		}
-		if(sair==0 && reset==1 && pausa==0){
+		else if(sair==0 && reset==1 && pausa==0 && venceu==0 && perdeu==0){
 			Mix_PauseMusic();
 			desenhaTexturaEstatica(960,540,960,540,imagemReset);
 		}
-		if(sair==0 && reset==0 && pausa==1){
+		else if(sair==0 && reset==0 && pausa==1 && venceu==0 && perdeu==0){
 			Mix_PauseMusic();
 			desenhaTexturaEstatica(960,540,960,180,imagemPause);
 		}
+		else if(venceu==1)
+			desenhaTexturaEstatica(960,540,960,540,vitoria);
+		else if(perdeu==1)
+			desenhaTexturaEstatica(960,540,960,540,derrota);
 	}
 	else if(telaAtual==5){
 		desenhaTexturaEstatica(960,540,1820,1020,imagemInstrucoes);
@@ -388,17 +404,17 @@ void draw(){
 	else if(telaAtual==6){
 		desenhaTexturaEstatica(960,biri[2],biri[0],biri[1],imagemLogo);
 		if(selecao==1)
-			desenhaTexturaEstatica(960,540,300,39,facilSel);
+			desenhaTexturaEstatica(960,540,230,33,facilSel);
 		else
-			desenhaTexturaEstatica(960,540,300,39,facil);
+			desenhaTexturaEstatica(960,540,230,33,facil);
 		if(selecao==2)
-			desenhaTexturaEstatica(960,490,200,39,medioSel);
+			desenhaTexturaEstatica(960,490,150,33,medioSel);
 		else
-			desenhaTexturaEstatica(960,490,200,39,medio);
+			desenhaTexturaEstatica(960,490,150,33,medio);
 		if(selecao==3)
-			desenhaTexturaEstatica(960,440,150,39,dificilSel);
+			desenhaTexturaEstatica(960,440,100,33,dificilSel);
 		else
-			desenhaTexturaEstatica(960,440,150,39,dificil);
+			desenhaTexturaEstatica(960,440,100,33,dificil);
 		if(selecao==4)
 			desenhaTexturaEstatica(960,390,130,33,imagemVoltarSel);
 		else
@@ -422,7 +438,7 @@ void atira(int x, int y){
 }
 //Cria uma bala das naves inimigas
 void navesAtirar(int valor){
-	if(telaAtual==4){
+	if(telaAtual==4 && venceu==0 && perdeu==0){
 		for(int i=0;i<dificuldade;i++){
 			if(pausa==0 && reset==0 && sair==0){
 				srand(time(0));
@@ -509,6 +525,16 @@ void keyboard(unsigned char key, int x, int y){
 				resetar();
 				Mix_ResumeMusic();
 			}
+			else if(venceu==1){
+				resetar();
+				Mix_RewindMusic();
+				venceu=0;
+			}
+			else if(perdeu==1){
+				resetar();
+				Mix_RewindMusic();
+				perdeu=0;
+			}
 			break;
 		case 'n':
 		case 'N':
@@ -519,6 +545,16 @@ void keyboard(unsigned char key, int x, int y){
 			else if(sair==0 && reset==1 && pausa==0){
 				reset=0;
 				Mix_ResumeMusic();
+			}
+			else if(venceu==1){
+				Mix_HaltMusic();
+				trocaTela(1);
+				tocaMusica();
+			}
+			else if(perdeu==1){
+				Mix_HaltMusic();
+				trocaTela(1);
+				tocaMusica();
 			}
 			break;
 		case 13: //enter
@@ -725,17 +761,13 @@ void atualizaCena(int tempo){
 				jogador.vida--;
 			}
 			if(jogador.vida==0){
-				printf("perdeu\n");
-				exit(0);
+				perdeu=1;
 			}
 		}
 		if(checarVitoria()){
-			Mix_HaltMusic();
-			trocaTela(1);
-			tocaMusica();
-			resetar(); // aqui vai ficar a tela de vitória e td mais
+			 venceu=1;
 		}
-		if(sair==0 && reset==0 && pausa==0){
+		if(sair==0 && reset==0 && pausa==0 && venceu==0 && perdeu==0){
 			mover();
 			verificaPosicao();
 			moverNaves();
