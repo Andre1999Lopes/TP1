@@ -76,6 +76,8 @@ float logoYMenu=800;
 float logoXtamanho=640;
 float logoYtamanho=320;
 vector<float> biri;
+long long int pontuacao=0;
+GLuint n0,n1,n2,n3,n4,n5,n6,n7,n8,n9;
 
 typedef struct Player{
 	float posicaoX;
@@ -287,6 +289,16 @@ void iniciarTexturas(){
 	imagemSairMenuSel = carregaTexturas("imgs/sairMenuSel.png");
 	imagemInstrucaoSel = carregaTexturas("imgs/instrucoesSel.png");
 	imagemVoltarSel = carregaTexturas("imgs/voltarSel.png");
+	n0 = carregaTexturas("imgs/0.png");
+	n1 = carregaTexturas("imgs/1.png");
+	n2 = carregaTexturas("imgs/2.png");
+	n3 = carregaTexturas("imgs/3.png");
+	n4 = carregaTexturas("imgs/4.png");
+	n5 = carregaTexturas("imgs/5.png");
+	n6 = carregaTexturas("imgs/6.png");
+	n7 = carregaTexturas("imgs/7.png");
+	n8 = carregaTexturas("imgs/8.png");
+	n9 = carregaTexturas("imgs/9.png");
 }
 //Função que inicializa o jogo no geral
 void setup(){
@@ -379,6 +391,32 @@ void draw(){
 			for(int j=0;j<jogador.vida;j++){
 				desenhaTexturaAnimada(x,100,40,50,jogador.textura,jogador.tamanho,1.0);
 				x+=60;
+			}
+			long long int guardaPonto = pontuacao;
+			int posX=1088;
+			for(int i=0;i<9;i++){
+				if(guardaPonto%10==0)
+					desenhaTexturaEstatica(posX,80,30,60,n0);
+				else if(guardaPonto%10==1)
+					desenhaTexturaEstatica(posX,80,30,60,n1);
+				else if(guardaPonto%10==2)
+					desenhaTexturaEstatica(posX,80,30,60,n2);
+				else if(guardaPonto%10==3)
+					desenhaTexturaEstatica(posX,80,30,60,n3);
+				else if(guardaPonto%10==4)
+					desenhaTexturaEstatica(posX,80,30,60,n4);
+				else if(guardaPonto%10==5)
+					desenhaTexturaEstatica(posX,80,30,60,n5);
+				else if(guardaPonto%10==6)
+					desenhaTexturaEstatica(posX,80,30,60,n6);
+				else if(guardaPonto%10==7)
+					desenhaTexturaEstatica(posX,80,30,60,n7);
+				else if(guardaPonto%10==8)
+					desenhaTexturaEstatica(posX,80,30,60,n8);
+				else if(guardaPonto%10==9)
+					desenhaTexturaEstatica(posX,80,30,60,n9);
+				guardaPonto/=10;
+				posX-=32;
 			}
 		}	
 		if(sair==1 && reset==0 && pausa==0 && venceu==0 && perdeu==0){
@@ -752,6 +790,7 @@ void atualizaCena(int tempo){
 				if(checarColisao(inimigos[i],bullets[j])){
 					bullets.erase(bullets.begin()+j);
 					inimigos.erase(inimigos.begin()+i);
+					pontuacao+=50;
 				}
 			}
 		}
