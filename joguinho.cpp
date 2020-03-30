@@ -62,6 +62,7 @@ GLuint imagemOsCreditos;
 GLuint imagemLogo;
 GLuint longTime;
 GLuint facil,facilSel,medio,medioSel,dificil,dificilSel;
+GLuint vidas;
 Mix_Chunk *tiro;
 Mix_Chunk *tirotf;
 Mix_Music *musicaBatalha;
@@ -299,6 +300,7 @@ void iniciarTexturas(){
 	n7 = carregaTexturas("imgs/7.png");
 	n8 = carregaTexturas("imgs/8.png");
 	n9 = carregaTexturas("imgs/9.png");
+	vidas = carregaTexturas("imgs/simbolo-resistencia.png");
 }
 //Função que inicializa o jogo no geral
 void setup(){
@@ -389,7 +391,7 @@ void draw(){
 			int x=100;
 			glColor3f(1,1,1);
 			for(int j=0;j<jogador.vida;j++){
-				desenhaTexturaAnimada(x,100,40,50,jogador.textura,jogador.tamanho,1.0);
+				desenhaTexturaEstatica(x,100,60,60, vidas);
 				x+=60;
 			}
 			long long int guardaPonto = pontuacao;
