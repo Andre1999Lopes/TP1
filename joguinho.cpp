@@ -551,7 +551,7 @@ void keyboard(unsigned char key, int x, int y){
 			if(sair==true && reset==false){
 				if(telaAtual==JOJINHO){
 					Mix_HaltMusic();
-					trocaTela(1);
+					trocaTela(MENU);
 					tocaMusica();
 					sair=false;
 				}
@@ -573,6 +573,7 @@ void keyboard(unsigned char key, int x, int y){
 			else if(perdeu==true){
 				resetar();
 				Mix_RewindMusic();
+				pontuacao=0;
 				perdeu=false;
 			}
 			break;
@@ -588,62 +589,63 @@ void keyboard(unsigned char key, int x, int y){
 			}
 			else if(venceu==true){
 				Mix_HaltMusic();
-				trocaTela(1);
+				trocaTela(MENU);
 				tocaMusica();
 			}
 			else if(perdeu==true){
 				Mix_HaltMusic();
-				trocaTela(1);
+				trocaTela(MENU);
 				tocaMusica();
 			}
 			break;
 		case 13: //enter
 			if(telaAtual==MENU && selecao==1 && aux==1){
 				Mix_HaltMusic();
-				trocaTela(4);
+				trocaTela(JOJINHO);
+				pontuacao=0;
 				glutTimerFunc(5000,navesAtirar,0);
 				resetar();
 				tocaMusica();
 			}
 			else if(telaAtual==MENU && selecao==2 && aux==1){
-				trocaTela(2);
+				trocaTela(OPCOES);
 				selecao=1;
 			}
 			else if(telaAtual==MENU && selecao==3 && aux==1){
-				trocaTela(5);
+				trocaTela(INSTRUCOES);
 				selecao=1;
 			}
 			else if(telaAtual==MENU && selecao==4 && aux==1){
 				sair=true;
 			}
 			else if(telaAtual==OPCOES && selecao==1){
-				trocaTela(6);
+				trocaTela(DIFICULDADES);
 			}
 			else if(telaAtual==OPCOES && selecao==2){
-				trocaTela(3);
+				trocaTela(CREDITOS);
 				selecao=1;
 			}
 			else if(telaAtual==OPCOES && selecao==3){
-				trocaTela(1);
+				trocaTela(MENU);
 				selecao=1;
 			}
 			else if(telaAtual==DIFICULDADES && selecao==1){
 				dificuldade=1;
-				trocaTela(2);
+				trocaTela(OPCOES);
 				selecao=1;	
 			}
 			else if(telaAtual==DIFICULDADES && selecao==2){
 				dificuldade=2;
-				trocaTela(2);
+				trocaTela(OPCOES);
 				selecao=1;
 			}
 			else if(telaAtual==DIFICULDADES && selecao==3){
 				dificuldade=3;
-				trocaTela(2);
+				trocaTela(OPCOES);
 				selecao=1;
 			}
 			else if(telaAtual==DIFICULDADES && selecao==4){
-				trocaTela(2);
+				trocaTela(OPCOES);
 				selecao=1;
 			}
 			break;
@@ -653,13 +655,13 @@ void keyboard(unsigned char key, int x, int y){
 			else if(telaAtual==MENU)
 				sair=true;
 			else if(telaAtual==OPCOES)
-				trocaTela(1);
+				trocaTela(MENU);
 			else if(telaAtual==INSTRUCOES)
-				trocaTela(1);
+				trocaTela(MENU);
 			else if(telaAtual==CREDITOS)
-				trocaTela(2);
+				trocaTela(OPCOES);
 			else if(telaAtual==DIFICULDADES)
-				trocaTela(2);
+				trocaTela(OPCOES);
 			break;
 		case 32:
 			if(pausa==false && reset==false && sair==false && telaAtual == JOJINHO){
