@@ -69,11 +69,15 @@ Mix_Music *musicaMenu;
 enum telas {SPLASH, MENU, OPCOES, CREDITOS, JOJINHO, INSTRUCOES, DIFICULDADES} TELAS;
 int telaAtual=0;
 int aux=1;
+int venceu=0;
+int perdeu=0;
 int selecao=1;
 float logoYMenu=800;
 float logoXtamanho=640;
 float logoYtamanho=320;
 vector<float> biri;
+long long int pontuacao=0;
+GLuint n0,n1,n2,n3,n4,n5,n6,n7,n8,n9;
 
 typedef struct Player{
 	float posicaoX;
@@ -245,10 +249,14 @@ void desenhaTexturaAnimada(float x, float y, float larg, float alt, GLuint textu
 }
 //Função que muda a música de acordo com a tela na qual o jogador se encontra
 void tocaMusica(){
-	if(telaAtual==1 && !Mix_PlayingMusic())
+	if(telaAtual==1 && !Mix_PlayingMusic()){
 		Mix_PlayMusic(musicaMenu,-1);
-	else if(telaAtual==4 && !Mix_PlayingMusic())
+		Mix_VolumeMusic(32);
+	}
+	else if(telaAtual==4 && !Mix_PlayingMusic()){
 		Mix_PlayMusic(musicaBatalha,-1);
+		Mix_VolumeMusic(96);
+	}
 }
 //Função que inicializa as texturas do menu
 void iniciarTexturas(){
@@ -281,6 +289,16 @@ void iniciarTexturas(){
 	imagemSairMenuSel = carregaTexturas("imgs/sairMenuSel.png");
 	imagemInstrucaoSel = carregaTexturas("imgs/instrucoesSel.png");
 	imagemVoltarSel = carregaTexturas("imgs/voltarSel.png");
+	n0 = carregaTexturas("imgs/0.png");
+	n1 = carregaTexturas("imgs/1.png");
+	n2 = carregaTexturas("imgs/2.png");
+	n3 = carregaTexturas("imgs/3.png");
+	n4 = carregaTexturas("imgs/4.png");
+	n5 = carregaTexturas("imgs/5.png");
+	n6 = carregaTexturas("imgs/6.png");
+	n7 = carregaTexturas("imgs/7.png");
+	n8 = carregaTexturas("imgs/8.png");
+	n9 = carregaTexturas("imgs/9.png");
 }
 //Função que inicializa o jogo no geral
 void setup(){
@@ -361,26 +379,62 @@ void draw(){
 		desenhaTexturaEstatica(960,540,1820,1020,imagemOsCreditos);
 	}
 	else if(telaAtual==4){
-		if(sair==0 && reset==0 && pausa==0){
+		if(sair==0 && reset==0 && pausa==0 && venceu==0 && perdeu==0){
 			desenhaTexturaAnimada(jogador.posicaoX,jogador.posicaoY,jogador.larg,jogador.alt,jogador.textura,jogador.tamanho,jogador.estado);
 			for(int i=0;i<inimigos.size();i++){
 				desenhaTexturaEstatica(inimigos[i].posicaoX,inimigos[i].posicaoY,inimigos[i].larg,inimigos[i].alt,inimigos[i].textura);
 			}
 			desenhaTiro();
 			desenhaTiroInimigo();
+			int x=100;
+			glColor3f(1,1,1);
+			for(int j=0;j<jogador.vida;j++){
+				desenhaTexturaAnimada(x,100,40,50,jogador.textura,jogador.tamanho,1.0);
+				x+=60;
+			}
+			long long int guardaPonto = pontuacao;
+			int posX=1088;
+			for(int i=0;i<9;i++){
+				if(guardaPonto%10==0)
+					desenhaTexturaEstatica(posX,80,30,60,n0);
+				else if(guardaPonto%10==1)
+					desenhaTexturaEstatica(posX,80,30,60,n1);
+				else if(guardaPonto%10==2)
+					desenhaTexturaEstatica(posX,80,30,60,n2);
+				else if(guardaPonto%10==3)
+					desenhaTexturaEstatica(posX,80,30,60,n3);
+				else if(guardaPonto%10==4)
+					desenhaTexturaEstatica(posX,80,30,60,n4);
+				else if(guardaPonto%10==5)
+					desenhaTexturaEstatica(posX,80,30,60,n5);
+				else if(guardaPonto%10==6)
+					desenhaTexturaEstatica(posX,80,30,60,n6);
+				else if(guardaPonto%10==7)
+					desenhaTexturaEstatica(posX,80,30,60,n7);
+				else if(guardaPonto%10==8)
+					desenhaTexturaEstatica(posX,80,30,60,n8);
+				else if(guardaPonto%10==9)
+					desenhaTexturaEstatica(posX,80,30,60,n9);
+				guardaPonto/=10;
+				posX-=32;
+			}
 		}	
-		if(sair==1 && reset==0 && pausa==0){
+		if(sair==1 && reset==0 && pausa==0 && venceu==0 && perdeu==0){
 			Mix_PauseMusic();
 			desenhaTexturaEstatica(960,540,960,540,imagemSair);
 		}
-		if(sair==0 && reset==1 && pausa==0){
+		else if(sair==0 && reset==1 && pausa==0 && venceu==0 && perdeu==0){
 			Mix_PauseMusic();
 			desenhaTexturaEstatica(960,540,960,540,imagemReset);
 		}
-		if(sair==0 && reset==0 && pausa==1){
+		else if(sair==0 && reset==0 && pausa==1 && venceu==0 && perdeu==0){
 			Mix_PauseMusic();
 			desenhaTexturaEstatica(960,540,960,180,imagemPause);
 		}
+		else if(venceu==1)
+			desenhaTexturaEstatica(960,540,960,540,vitoria);
+		else if(perdeu==1)
+			desenhaTexturaEstatica(960,540,960,540,derrota);
 	}
 	else if(telaAtual==5){
 		desenhaTexturaEstatica(960,540,1820,1020,imagemInstrucoes);
@@ -388,17 +442,17 @@ void draw(){
 	else if(telaAtual==6){
 		desenhaTexturaEstatica(960,biri[2],biri[0],biri[1],imagemLogo);
 		if(selecao==1)
-			desenhaTexturaEstatica(960,540,300,39,facilSel);
+			desenhaTexturaEstatica(960,540,230,33,facilSel);
 		else
-			desenhaTexturaEstatica(960,540,300,39,facil);
+			desenhaTexturaEstatica(960,540,230,33,facil);
 		if(selecao==2)
-			desenhaTexturaEstatica(960,490,200,39,medioSel);
+			desenhaTexturaEstatica(960,490,150,33,medioSel);
 		else
-			desenhaTexturaEstatica(960,490,200,39,medio);
+			desenhaTexturaEstatica(960,490,150,33,medio);
 		if(selecao==3)
-			desenhaTexturaEstatica(960,440,150,39,dificilSel);
+			desenhaTexturaEstatica(960,440,100,33,dificilSel);
 		else
-			desenhaTexturaEstatica(960,440,150,39,dificil);
+			desenhaTexturaEstatica(960,440,100,33,dificil);
 		if(selecao==4)
 			desenhaTexturaEstatica(960,390,130,33,imagemVoltarSel);
 		else
@@ -422,7 +476,7 @@ void atira(int x, int y){
 }
 //Cria uma bala das naves inimigas
 void navesAtirar(int valor){
-	if(telaAtual==4){
+	if(telaAtual==4 && venceu==0 && perdeu==0){
 		for(int i=0;i<dificuldade;i++){
 			if(pausa==0 && reset==0 && sair==0){
 				srand(time(0));
@@ -509,6 +563,16 @@ void keyboard(unsigned char key, int x, int y){
 				resetar();
 				Mix_ResumeMusic();
 			}
+			else if(venceu==1){
+				resetar();
+				Mix_RewindMusic();
+				venceu=0;
+			}
+			else if(perdeu==1){
+				resetar();
+				Mix_RewindMusic();
+				perdeu=0;
+			}
 			break;
 		case 'n':
 		case 'N':
@@ -519,6 +583,16 @@ void keyboard(unsigned char key, int x, int y){
 			else if(sair==0 && reset==1 && pausa==0){
 				reset=0;
 				Mix_ResumeMusic();
+			}
+			else if(venceu==1){
+				Mix_HaltMusic();
+				trocaTela(1);
+				tocaMusica();
+			}
+			else if(perdeu==1){
+				Mix_HaltMusic();
+				trocaTela(1);
+				tocaMusica();
 			}
 			break;
 		case 13: //enter
@@ -716,6 +790,7 @@ void atualizaCena(int tempo){
 				if(checarColisao(inimigos[i],bullets[j])){
 					bullets.erase(bullets.begin()+j);
 					inimigos.erase(inimigos.begin()+i);
+					pontuacao+=50;
 				}
 			}
 		}
@@ -725,17 +800,13 @@ void atualizaCena(int tempo){
 				jogador.vida--;
 			}
 			if(jogador.vida==0){
-				printf("perdeu\n");
-				exit(0);
+				perdeu=1;
 			}
 		}
 		if(checarVitoria()){
-			Mix_HaltMusic();
-			trocaTela(1);
-			tocaMusica();
-			resetar(); // aqui vai ficar a tela de vitória e td mais
+			 venceu=1;
 		}
-		if(sair==0 && reset==0 && pausa==0){
+		if(sair==0 && reset==0 && pausa==0 && venceu==0 && perdeu==0){
 			mover();
 			verificaPosicao();
 			moverNaves();
