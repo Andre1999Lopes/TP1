@@ -30,18 +30,18 @@ GLboolean checarColisao();
 void iniciarJogador();
 void iniciarInimigos();
 void desenhaTiroInimigo();
-int pausa=0;
-int sair=0;
-int reset=0;
-int direita;
-int esquerda;
+bool pausa=false;
+bool sair=false;
+bool reset=false;
+bool direita;
+bool esquerda;
 int dificuldade=1;
 float larguraTela=1920;
 float alturaTela=1080;
 float movimentoJogador=10;
 float movimentoInimigos=4;
 bool podeAtirar = true;
-int atirou = 0;
+bool atirou = false;
 float alfa=0;
 float incrementoX;
 float decrementoY;
@@ -68,10 +68,10 @@ Mix_Chunk *tirotf;
 Mix_Music *musicaBatalha;
 Mix_Music *musicaMenu;
 enum telas {SPLASH, MENU, OPCOES, CREDITOS, JOJINHO, INSTRUCOES, DIFICULDADES} TELAS;
-int telaAtual=0;
+int telaAtual=SPLASH;
 int aux=1;
-int venceu=0;
-int perdeu=0;
+bool venceu=false;
+bool perdeu=false;
 int selecao=1;
 float logoYMenu=800;
 float logoXtamanho=640;
@@ -186,9 +186,9 @@ GLboolean checarColisaoPlayerNaves(Player player, Enemies enemy){
 }
 //Função que muda a posição do jogador baseada em uma constante de movimento
 void mover(){
-	if(direita==1 && jogador.posicaoX<1700)
+	if(direita==true && jogador.posicaoX<1700)
 		jogador.posicaoX+=movimentoJogador;
-	if(esquerda==1 && jogador.posicaoX>200)
+	if(esquerda==true && jogador.posicaoX>200)
 		jogador.posicaoX-=movimentoJogador;
 }
 //Função de checagem de vitória
@@ -250,11 +250,11 @@ void desenhaTexturaAnimada(float x, float y, float larg, float alt, GLuint textu
 }
 //Função que muda a música de acordo com a tela na qual o jogador se encontra
 void tocaMusica(){
-	if(telaAtual==1 && !Mix_PlayingMusic()){
+	if(telaAtual == MENU && !Mix_PlayingMusic()){
 		Mix_PlayMusic(musicaMenu,-1);
 		Mix_VolumeMusic(32);
 	}
-	else if(telaAtual==4 && !Mix_PlayingMusic()){
+	else if(telaAtual==JOJINHO && !Mix_PlayingMusic()){
 		Mix_PlayMusic(musicaBatalha,-1);
 		Mix_VolumeMusic(96);
 	}
@@ -332,11 +332,11 @@ void reshape(int width, int height){
 void draw(){
 	glClear(GL_COLOR_BUFFER_BIT);
 	glColor4f(1,1,1,alfa);
-	if(telaAtual==0){
+	if(telaAtual==SPLASH){
 		desenhaTexturaEstatica(960,540,800,412,longTime);
 	}
-	if(telaAtual==1){
-		if(sair==1)
+	if(telaAtual==MENU){
+		if(sair==true)
 			desenhaTexturaEstatica(960,540,960,540,imagemSair);
 		else{
 			desenhaTexturaEstatica(960,biri[2],biri[0],biri[1],imagemLogo);
@@ -362,7 +362,7 @@ void draw(){
 			}
 		}
 	}
-	else if(telaAtual==2){
+	else if(telaAtual==OPCOES){
 		desenhaTexturaEstatica(960,biri[2],biri[0],biri[1],imagemLogo);
 		if(selecao==1)
 			desenhaTexturaEstatica(960,540,200,33,imagemDificuldadeSel);
@@ -377,11 +377,11 @@ void draw(){
 		else
 			desenhaTexturaEstatica(960,440,130,33,imagemVoltar);
 	}
-	else if(telaAtual==3){
+	else if(telaAtual==CREDITOS){
 		desenhaTexturaEstatica(960,540,1820,1020,imagemOsCreditos);
 	}
-	else if(telaAtual==4){
-		if(sair==0 && reset==0 && pausa==0 && venceu==0 && perdeu==0){
+	else if(telaAtual==JOJINHO){
+		if(sair==false && reset==false && pausa==false && venceu==false && perdeu==false){
 			desenhaTexturaAnimada(jogador.posicaoX,jogador.posicaoY,jogador.larg,jogador.alt,jogador.textura,jogador.tamanho,jogador.estado);
 			for(int i=0;i<inimigos.size();i++){
 				desenhaTexturaEstatica(inimigos[i].posicaoX,inimigos[i].posicaoY,inimigos[i].larg,inimigos[i].alt,inimigos[i].textura);
@@ -421,27 +421,27 @@ void draw(){
 				posX-=32;
 			}
 		}	
-		if(sair==1 && reset==0 && pausa==0 && venceu==0 && perdeu==0){
+		if(sair==true && reset==false && pausa==false && venceu==false && perdeu==false){
 			Mix_PauseMusic();
 			desenhaTexturaEstatica(960,540,960,540,imagemSair);
 		}
-		else if(sair==0 && reset==1 && pausa==0 && venceu==0 && perdeu==0){
+		else if(sair==false && reset==true && pausa==false && venceu==false && perdeu==false){
 			Mix_PauseMusic();
 			desenhaTexturaEstatica(960,540,960,540,imagemReset);
 		}
-		else if(sair==0 && reset==0 && pausa==1 && venceu==0 && perdeu==0){
+		else if(sair==false && reset==false && pausa==true && venceu==false && perdeu==false){
 			Mix_PauseMusic();
 			desenhaTexturaEstatica(960,540,960,180,imagemPause);
 		}
-		else if(venceu==1)
+		else if(venceu==true)
 			desenhaTexturaEstatica(960,540,960,540,vitoria);
-		else if(perdeu==1)
+		else if(perdeu==true)
 			desenhaTexturaEstatica(960,540,960,540,derrota);
 	}
-	else if(telaAtual==5){
+	else if(telaAtual==INSTRUCOES){
 		desenhaTexturaEstatica(960,540,1820,1020,imagemInstrucoes);
 	}
-	else if(telaAtual==6){
+	else if(telaAtual==DIFICULDADES){
 		desenhaTexturaEstatica(960,biri[2],biri[0],biri[1],imagemLogo);
 		if(selecao==1)
 			desenhaTexturaEstatica(960,540,230,33,facilSel);
@@ -478,9 +478,9 @@ void atira(int x, int y){
 }
 //Cria uma bala das naves inimigas
 void navesAtirar(int valor){
-	if(telaAtual==4 && venceu==0 && perdeu==0){
+	if(telaAtual==JOJINHO && venceu==false && perdeu==false){
 		for(int i=0;i<dificuldade;i++){
-			if(pausa==0 && reset==0 && sair==0){
+			if(pausa==false && reset==false && sair==false){
 				srand(time(0));
 				Bullet enemyBullet;
 				valor = rand()%inimigos.size();
@@ -538,131 +538,131 @@ void keyboard(unsigned char key, int x, int y){
 	switch(key){
 		case 'a':
 		case 'A':
-			esquerda=1;
+			esquerda=true;
 			jogador.estado=0;
 			break;
 		case 'd':
 		case 'D':
-			direita=1;
+			direita=true;
 			jogador.estado=2;
 			break;
 		case 's':
 		case 'S':
-			if(sair==1 && reset==0){
-				if(telaAtual==4){
+			if(sair==true && reset==false){
+				if(telaAtual==JOJINHO){
 					Mix_HaltMusic();
 					trocaTela(1);
 					tocaMusica();
-					sair=0;
+					sair=false;
 				}
-				else if(telaAtual==1){
+				else if(telaAtual==MENU){
 					exit(0);
 				}
 			}
-			else if(sair==0 && reset==1){
-				reset=0;
+			else if(sair==false && reset==true){
+				reset=false;
 				Mix_RewindMusic();
 				resetar();
 				Mix_ResumeMusic();
 			}
-			else if(venceu==1){
+			else if(venceu==true){
 				resetar();
 				Mix_RewindMusic();
-				venceu=0;
+				venceu=false;
 			}
-			else if(perdeu==1){
+			else if(perdeu==true){
 				resetar();
 				Mix_RewindMusic();
-				perdeu=0;
+				perdeu=false;
 			}
 			break;
 		case 'n':
 		case 'N':
-			if(sair==1 && reset==0 && pausa==0){
-				sair=0;
+			if(sair==true && reset==false && pausa==false){
+				sair=false;
 				Mix_ResumeMusic();
 			}
-			else if(sair==0 && reset==1 && pausa==0){
-				reset=0;
+			else if(sair==false && reset==true && pausa==false){
+				reset=false;
 				Mix_ResumeMusic();
 			}
-			else if(venceu==1){
+			else if(venceu==true){
 				Mix_HaltMusic();
 				trocaTela(1);
 				tocaMusica();
 			}
-			else if(perdeu==1){
+			else if(perdeu==true){
 				Mix_HaltMusic();
 				trocaTela(1);
 				tocaMusica();
 			}
 			break;
 		case 13: //enter
-			if(telaAtual==1 && selecao==1 && aux==1){
+			if(telaAtual==MENU && selecao==1 && aux==1){
 				Mix_HaltMusic();
 				trocaTela(4);
 				glutTimerFunc(5000,navesAtirar,0);
 				resetar();
 				tocaMusica();
 			}
-			else if(telaAtual==1 && selecao==2 && aux==1){
+			else if(telaAtual==MENU && selecao==2 && aux==1){
 				trocaTela(2);
 				selecao=1;
 			}
-			else if(telaAtual==1 && selecao==3 && aux==1){
+			else if(telaAtual==MENU && selecao==3 && aux==1){
 				trocaTela(5);
 				selecao=1;
 			}
-			else if(telaAtual==1 && selecao==4 && aux==1){
-				sair=1;
+			else if(telaAtual==MENU && selecao==4 && aux==1){
+				sair=true;
 			}
-			else if(telaAtual==2 && selecao==1){
+			else if(telaAtual==OPCOES && selecao==1){
 				trocaTela(6);
 			}
-			else if(telaAtual==2 && selecao==2){
+			else if(telaAtual==OPCOES && selecao==2){
 				trocaTela(3);
 				selecao=1;
 			}
-			else if(telaAtual==2 && selecao==3){
+			else if(telaAtual==OPCOES && selecao==3){
 				trocaTela(1);
 				selecao=1;
 			}
-			else if(telaAtual==6 && selecao==1){
+			else if(telaAtual==DIFICULDADES && selecao==1){
 				dificuldade=1;
 				trocaTela(2);
 				selecao=1;	
 			}
-			else if(telaAtual==6 && selecao==2){
+			else if(telaAtual==DIFICULDADES && selecao==2){
 				dificuldade=2;
 				trocaTela(2);
 				selecao=1;
 			}
-			else if(telaAtual==6 && selecao==3){
+			else if(telaAtual==DIFICULDADES && selecao==3){
 				dificuldade=3;
 				trocaTela(2);
 				selecao=1;
 			}
-			else if(telaAtual==6 && selecao==4){
+			else if(telaAtual==DIFICULDADES && selecao==4){
 				trocaTela(2);
 				selecao=1;
 			}
 			break;
 		case 27:
-			if(telaAtual==4 && sair==0 && reset==0 && pausa==0)
-				sair=1;
-			else if(telaAtual==1)
-				sair=1;
-			else if(telaAtual==2)
+			if(telaAtual==JOJINHO && sair==false && reset==false && pausa==false)
+				sair=true;
+			else if(telaAtual==MENU)
+				sair=true;
+			else if(telaAtual==OPCOES)
 				trocaTela(1);
-			else if(telaAtual==5)
+			else if(telaAtual==INSTRUCOES)
 				trocaTela(1);
-			else if(telaAtual==3)
+			else if(telaAtual==CREDITOS)
 				trocaTela(2);
-			else if(telaAtual==6)
+			else if(telaAtual==DIFICULDADES)
 				trocaTela(2);
 			break;
 		case 32:
-			if(pausa==0 && reset==0 && sair==0 && telaAtual == JOJINHO){
+			if(pausa==false && reset==false && sair==false && telaAtual == JOJINHO){
 				if(podeAtirar==true){
 					atira(jogador.posicaoX, jogador.posicaoY);
 					Mix_PlayChannel(-1,tiro,0);
@@ -674,15 +674,15 @@ void keyboard(unsigned char key, int x, int y){
 			break;
 		case 'r':
 		case 'R':
-			if(pausa==0 && sair==0)
-				reset=1;
+			if(pausa==false && sair==false)
+				reset=true;
 			break;
 		case 'p':
 		case 'P':
-			if(sair==0 && reset==0 && pausa==0)
-				pausa=1;
+			if(sair==false && reset==false && pausa==false)
+				pausa=true;
 			else{
-				pausa=0;
+				pausa=false;
 				Mix_ResumeMusic();
 			}
 			break;
@@ -695,12 +695,12 @@ void keyboardUp(unsigned char key, int x, int y){
 	switch(key){
 		case 'a':
 		case 'A':
-			esquerda=0;
+			esquerda=false;
 			jogador.estado=1;
 			break;
 		case 'd':
 		case 'D':
-			direita=0;
+			direita=false;
 			jogador.estado=1;
 			break;
 		default:
@@ -711,27 +711,27 @@ void keyboardUp(unsigned char key, int x, int y){
 void specialKeyboard(int key, int x, int y){
 	switch(key){
 		case GLUT_KEY_LEFT:
-			esquerda=1;
+			esquerda=true;
 			jogador.estado=0;
 			break;
 		case GLUT_KEY_RIGHT:
-			direita=1;
+			direita=true;
 			jogador.estado=2;
 			break;
 		case GLUT_KEY_UP:
-			if(telaAtual==1 && selecao>1)
+			if(telaAtual==MENU && selecao>1)
 				selecao--;
-			else if(telaAtual==2 && selecao>1)
+			else if(telaAtual==OPCOES && selecao>1)
 				selecao--;
-			else if(telaAtual==6 && selecao>1)
+			else if(telaAtual==DIFICULDADES && selecao>1)
 				selecao--;
 			break;
 		case GLUT_KEY_DOWN:
-			if(telaAtual==1 && selecao<4)
+			if(telaAtual==MENU && selecao<4)
 				selecao++;
-			else if(telaAtual==2 && selecao<3)
+			else if(telaAtual==OPCOES && selecao<3)
 				selecao++;
-			else if(telaAtual==6 && selecao<4)
+			else if(telaAtual==DIFICULDADES && selecao<4)
 				selecao++;
 			break;
 	}
@@ -740,18 +740,18 @@ void specialKeyboard(int key, int x, int y){
 void specialKeyboardUp(int key, int x, int y){
 	switch(key){
 		case GLUT_KEY_LEFT:
-			esquerda=0;
+			esquerda=false;
 			jogador.estado=1;
 			break;
 		case GLUT_KEY_RIGHT:
-			direita=0;
+			direita=false;
 			jogador.estado=1;
 			break;
 	}
 }
 
 void atualizaCena(int tempo){
-	if(telaAtual==0){
+	if(telaAtual==SPLASH){
 		if(aux!=0){
 			if(alfa<1)
 				alfa+=0.01;
@@ -771,7 +771,7 @@ void atualizaCena(int tempo){
 		}
 	}
 	//Aqui é verificado se a logo já ficou no tamanho e na posição já predefinidas para o menu
-	if(telaAtual==1){
+	if(telaAtual==MENU){
 		tocaMusica();
 		if(biri[2]<800)
 			biri[2]+=1.1;
@@ -783,7 +783,7 @@ void atualizaCena(int tempo){
 			aux=1;
 	}
 	//Aqui fica a lógica do jogo
-	if(telaAtual==4){
+	if(telaAtual==JOJINHO){
 		tocaMusica();
 		for(int i=0;i<inimigos.size();i++){
 			if(checarColisaoPlayerNaves(jogador,inimigos[i]))
@@ -802,13 +802,13 @@ void atualizaCena(int tempo){
 				jogador.vida--;
 			}
 			if(jogador.vida==0){
-				perdeu=1;
+				perdeu=true;
 			}
 		}
 		if(checarVitoria()){
-			 venceu=1;
+			 venceu=true;
 		}
-		if(sair==0 && reset==0 && pausa==0 && venceu==0 && perdeu==0){
+		if(sair==false && reset==false && pausa==false && venceu==false && perdeu==false){
 			mover();
 			verificaPosicao();
 			moverNaves();
