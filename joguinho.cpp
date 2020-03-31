@@ -45,6 +45,7 @@ bool atirou = false;
 float alfa=0;
 float incrementoX;
 float decrementoY;
+const float delta1 = 5;
 GLuint imagemIniciar,imagemIniciarSel;
 GLuint imagemSair;
 GLuint imagemPause;
@@ -73,10 +74,12 @@ int telaAtual=SPLASH;
 int aux=1;
 bool venceu=false;
 bool perdeu=false;
+bool mute=false;
 int selecao=1;
 float logoYMenu=800;
 float logoXtamanho=640;
 float logoYtamanho=320;
+static GLfloat deslocaFundo1=0;
 vector<float> biri;
 long long int pontuacao=0;
 GLuint n0,n1,n2,n3,n4,n5,n6,n7,n8,n9;
@@ -147,6 +150,41 @@ void moverNaves(){
 		inimigos[i].posicaoX+=movimentoInimigos;
 	}
 }
+//Em teoria, esta é a função que desenha um fundo animado. Não faço ideia do pq não tá funcionando, mas acontece
+void desenhaFundo(){
+	glEnable(GL_TEXTURE_2D);
+    glBindTexture(GL_TEXTURE_2D, fundo1);
+	glTexParameterf(fundo1, GL_TEXTURE_WRAP_T, GL_REPEAT);
+	glTexParameterf(fundo1, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+	glTexParameterf(fundo1, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+	glPushMatrix();
+	    glTranslatef(960,540/*deslocaFundo1*/,0);
+        glBegin(GL_TRIANGLE_FAN);
+            glTexCoord2f(0,0); glVertex2f(-1920/2, -1080/2);
+            glTexCoord2f(1,0); glVertex2f( 1920/2, -1080/2);
+            glTexCoord2f(1,1); glVertex2f( 1920/2,  1080/2);
+            glTexCoord2f(0,1); glVertex2f(-1920/2,  1080/2);
+        glEnd();
+    glPopMatrix();
+    glDisable(GL_TEXTURE_2D);
+    glFlush();
+}
+//Função que desenha um retângulo dados a sua posição no eixo X e no eixo Y, sua largura, sua altura e a textura a ser utilizada. Textura estática
+void desenhaTexturaEstatica(float x, float y, float larg, float alt, GLuint textura){
+	glEnable(GL_TEXTURE_2D);
+    glBindTexture(GL_TEXTURE_2D, textura);
+    glPushMatrix();
+        glTranslatef(x, y, 0);
+        glBegin(GL_TRIANGLE_FAN);
+            glTexCoord2f(0,0); glVertex2f(-larg/2, -alt/2);
+            glTexCoord2f(1,0); glVertex2f( larg/2, -alt/2);
+            glTexCoord2f(1,1); glVertex2f( larg/2,  alt/2);
+            glTexCoord2f(0,1); glVertex2f(-larg/2,  alt/2);
+        glEnd();
+    glPopMatrix();
+    glDisable(GL_TEXTURE_2D);
+    glFlush();
+}
 //Função que inicializa o vector de inimigos e dá uma posição para cada um
 void iniciarInimigos(){
 	incrementoX=0;
@@ -216,22 +254,7 @@ void iniciarJogador(){
 	jogador.tamanho=3.0;
 	jogador.textura = carregaTexturas("imgs/mfalconAnimado.png");
 }
-//Função que desenha um retângulo dados a sua posição no eixo X e no eixo Y, sua largura, sua altura e a textura a ser utilizada. Textura estática
-void desenhaTexturaEstatica(float x, float y, float larg, float alt, GLuint textura){
-	glEnable(GL_TEXTURE_2D);
-    glBindTexture(GL_TEXTURE_2D, textura);
-    glPushMatrix();
-        glTranslatef(x, y, 0);
-        glBegin(GL_TRIANGLE_FAN);
-            glTexCoord2f(0,0); glVertex2f(-larg/2, -alt/2);
-            glTexCoord2f(1,0); glVertex2f( larg/2, -alt/2);
-            glTexCoord2f(1,1); glVertex2f( larg/2,  alt/2);
-            glTexCoord2f(0,1); glVertex2f(-larg/2,  alt/2);
-        glEnd();
-    glPopMatrix();
-    glDisable(GL_TEXTURE_2D);
-    glFlush();
-}
+
 
 void desenhaTexturaAnimada(float x, float y, float larg, float alt, GLuint textura, float tamanho, float estado){
 	glEnable(GL_TEXTURE_2D);
@@ -320,7 +343,7 @@ void setup(){
 	iniciarJogador();
 	iniciarInimigos();
 	iniciarTexturas();
-	glEnable(GL_BLEND );
+	glEnable(GL_BLEND);
     glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 }
 
@@ -387,6 +410,7 @@ void draw(){
 	}
 	else if(telaAtual==JOJINHO){
 		if(!sair && !reset && !pausa && !venceu && !perdeu){
+			desenhaFundo();
 			desenhaTexturaAnimada(jogador.posicaoX,jogador.posicaoY,jogador.larg,jogador.alt,jogador.textura,jogador.tamanho,jogador.estado);
 			for(int i=0;i<inimigos.size();i++){
 				desenhaTexturaEstatica(inimigos[i].posicaoX,inimigos[i].posicaoY,inimigos[i].larg,inimigos[i].alt,inimigos[i].textura);
@@ -399,6 +423,8 @@ void draw(){
 				desenhaTexturaEstatica(x,100,60,60, vidas);
 				x+=60;
 			}
+
+			//desenhaTexturaEstatica(960,540,1920,1080,fundo1);
 			long long int guardaPonto = pontuacao;
 			int posX=1088;
 			for(int i=0;i<9;i++){
@@ -465,6 +491,7 @@ void draw(){
 		else
 			desenhaTexturaEstatica(960,390,130,33,imagemVoltar);
 	}
+	
 	glutSwapBuffers();
 }
 //Função que verifica se o player pode ou não atirar. O tempo muda de acordo com a dificuldade
@@ -790,6 +817,7 @@ void atualizaCena(int tempo){
 	//Aqui fica a lógica do jogo
 	if(telaAtual==JOJINHO){
 		tocaMusica();
+		deslocaFundo1-=delta1;
 		for(int i=0;i<inimigos.size();i++){
 			if(checarColisaoPlayerNaves(jogador,inimigos[i]))
 				exit(0);
