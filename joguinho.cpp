@@ -63,6 +63,7 @@ GLuint imagemLogo;
 GLuint longTime;
 GLuint facil,facilSel,medio,medioSel,dificil,dificilSel;
 GLuint vidas;
+GLuint fundo1,fundo2,fundo3;
 Mix_Chunk *tiro;
 Mix_Chunk *tirotf;
 Mix_Music *musicaBatalha;
@@ -290,6 +291,9 @@ void iniciarTexturas(){
 	imagemSairMenuSel = carregaTexturas("imgs/sairMenuSel.png");
 	imagemInstrucaoSel = carregaTexturas("imgs/instrucoesSel.png");
 	imagemVoltarSel = carregaTexturas("imgs/voltarSel.png");
+	fundo1 = carregaTexturas("imgs/fundo1-transparente.png");
+	fundo2 = carregaTexturas("imgs/fundo2-transparente.png");
+	fundo3 = carregaTexturas("imgs/fundo3-transparente.png");
 	n0 = carregaTexturas("imgs/0.png");
 	n1 = carregaTexturas("imgs/1.png");
 	n2 = carregaTexturas("imgs/2.png");
@@ -339,6 +343,7 @@ void draw(){
 		if(sair)
 			desenhaTexturaEstatica(960,540,960,540,imagemSair);
 		else{
+			desenhaTexturaEstatica(960,540,1920,1080,fundo1);
 			desenhaTexturaEstatica(960,biri[2],biri[0],biri[1],imagemLogo);
 			/*A variável aux serve para verificar se a introdução do jogo já foi ou não finalizada para que se possa desenhar
 			as opções do menu*/
