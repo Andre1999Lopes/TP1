@@ -45,6 +45,7 @@ bool atirou = false;
 float alfa=0;
 float incrementoX;
 float decrementoY;
+const float delta1 = 5;
 GLuint imagemIniciar,imagemIniciarSel;
 GLuint imagemSair;
 GLuint imagemPause;
@@ -63,6 +64,7 @@ GLuint imagemLogo;
 GLuint longTime;
 GLuint facil,facilSel,medio,medioSel,dificil,dificilSel;
 GLuint vidas;
+GLuint fundo1,fundo2,fundo3;
 Mix_Chunk *tiro;
 Mix_Chunk *tirotf;
 Mix_Music *musicaBatalha;
@@ -72,10 +74,12 @@ int telaAtual=SPLASH;
 int aux=1;
 bool venceu=false;
 bool perdeu=false;
+bool mute=false;
 int selecao=1;
 float logoYMenu=800;
 float logoXtamanho=640;
 float logoYtamanho=320;
+static GLfloat deslocaFundo1=0;
 vector<float> biri;
 long long int pontuacao=0;
 GLuint n0,n1,n2,n3,n4,n5,n6,n7,n8,n9;
@@ -146,6 +150,41 @@ void moverNaves(){
 		inimigos[i].posicaoX+=movimentoInimigos;
 	}
 }
+//Em teoria, esta é a função que desenha um fundo animado. Não faço ideia do pq não tá funcionando, mas acontece
+void desenhaFundo(){
+	glEnable(GL_TEXTURE_2D);
+    glBindTexture(GL_TEXTURE_2D, fundo1);
+	glTexParameterf(fundo1, GL_TEXTURE_WRAP_T, GL_REPEAT);
+	glTexParameterf(fundo1, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+	glTexParameterf(fundo1, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+	glPushMatrix();
+	    glTranslatef(960,540/*deslocaFundo1*/,0);
+        glBegin(GL_TRIANGLE_FAN);
+            glTexCoord2f(0,0); glVertex2f(-1920/2, -1080/2);
+            glTexCoord2f(1,0); glVertex2f( 1920/2, -1080/2);
+            glTexCoord2f(1,1); glVertex2f( 1920/2,  1080/2);
+            glTexCoord2f(0,1); glVertex2f(-1920/2,  1080/2);
+        glEnd();
+    glPopMatrix();
+    glDisable(GL_TEXTURE_2D);
+    glFlush();
+}
+//Função que desenha um retângulo dados a sua posição no eixo X e no eixo Y, sua largura, sua altura e a textura a ser utilizada. Textura estática
+void desenhaTexturaEstatica(float x, float y, float larg, float alt, GLuint textura){
+	glEnable(GL_TEXTURE_2D);
+    glBindTexture(GL_TEXTURE_2D, textura);
+    glPushMatrix();
+        glTranslatef(x, y, 0);
+        glBegin(GL_TRIANGLE_FAN);
+            glTexCoord2f(0,0); glVertex2f(-larg/2, -alt/2);
+            glTexCoord2f(1,0); glVertex2f( larg/2, -alt/2);
+            glTexCoord2f(1,1); glVertex2f( larg/2,  alt/2);
+            glTexCoord2f(0,1); glVertex2f(-larg/2,  alt/2);
+        glEnd();
+    glPopMatrix();
+    glDisable(GL_TEXTURE_2D);
+    glFlush();
+}
 //Função que inicializa o vector de inimigos e dá uma posição para cada um
 void iniciarInimigos(){
 	incrementoX=0;
@@ -215,22 +254,7 @@ void iniciarJogador(){
 	jogador.tamanho=3.0;
 	jogador.textura = carregaTexturas("imgs/mfalconAnimado.png");
 }
-//Função que desenha um retângulo dados a sua posição no eixo X e no eixo Y, sua largura, sua altura e a textura a ser utilizada. Textura estática
-void desenhaTexturaEstatica(float x, float y, float larg, float alt, GLuint textura){
-	glEnable(GL_TEXTURE_2D);
-    glBindTexture(GL_TEXTURE_2D, textura);
-    glPushMatrix();
-        glTranslatef(x, y, 0);
-        glBegin(GL_TRIANGLE_FAN);
-            glTexCoord2f(0,0); glVertex2f(-larg/2, -alt/2);
-            glTexCoord2f(1,0); glVertex2f( larg/2, -alt/2);
-            glTexCoord2f(1,1); glVertex2f( larg/2,  alt/2);
-            glTexCoord2f(0,1); glVertex2f(-larg/2,  alt/2);
-        glEnd();
-    glPopMatrix();
-    glDisable(GL_TEXTURE_2D);
-    glFlush();
-}
+
 
 void desenhaTexturaAnimada(float x, float y, float larg, float alt, GLuint textura, float tamanho, float estado){
 	glEnable(GL_TEXTURE_2D);
@@ -290,6 +314,9 @@ void iniciarTexturas(){
 	imagemSairMenuSel = carregaTexturas("imgs/sairMenuSel.png");
 	imagemInstrucaoSel = carregaTexturas("imgs/instrucoesSel.png");
 	imagemVoltarSel = carregaTexturas("imgs/voltarSel.png");
+	fundo1 = carregaTexturas("imgs/fundo1-transparente.png");
+	fundo2 = carregaTexturas("imgs/fundo2-transparente.png");
+	fundo3 = carregaTexturas("imgs/fundo3-transparente.png");
 	n0 = carregaTexturas("imgs/0.png");
 	n1 = carregaTexturas("imgs/1.png");
 	n2 = carregaTexturas("imgs/2.png");
@@ -316,7 +343,7 @@ void setup(){
 	iniciarJogador();
 	iniciarInimigos();
 	iniciarTexturas();
-	glEnable(GL_BLEND );
+	glEnable(GL_BLEND);
     glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 }
 
@@ -336,9 +363,10 @@ void draw(){
 		desenhaTexturaEstatica(960,540,800,412,longTime);
 	}
 	if(telaAtual==MENU){
-		if(sair==true)
+		if(sair)
 			desenhaTexturaEstatica(960,540,960,540,imagemSair);
 		else{
+			desenhaTexturaEstatica(960,540,1920,1080,fundo1);
 			desenhaTexturaEstatica(960,biri[2],biri[0],biri[1],imagemLogo);
 			/*A variável aux serve para verificar se a introdução do jogo já foi ou não finalizada para que se possa desenhar
 			as opções do menu*/
@@ -381,7 +409,8 @@ void draw(){
 		desenhaTexturaEstatica(960,540,1820,1020,imagemOsCreditos);
 	}
 	else if(telaAtual==JOJINHO){
-		if(sair==false && reset==false && pausa==false && venceu==false && perdeu==false){
+		if(!sair && !reset && !pausa && !venceu && !perdeu){
+			desenhaFundo();
 			desenhaTexturaAnimada(jogador.posicaoX,jogador.posicaoY,jogador.larg,jogador.alt,jogador.textura,jogador.tamanho,jogador.estado);
 			for(int i=0;i<inimigos.size();i++){
 				desenhaTexturaEstatica(inimigos[i].posicaoX,inimigos[i].posicaoY,inimigos[i].larg,inimigos[i].alt,inimigos[i].textura);
@@ -394,6 +423,8 @@ void draw(){
 				desenhaTexturaEstatica(x,100,60,60, vidas);
 				x+=60;
 			}
+
+			//desenhaTexturaEstatica(960,540,1920,1080,fundo1);
 			long long int guardaPonto = pontuacao;
 			int posX=1088;
 			for(int i=0;i<9;i++){
@@ -421,21 +452,21 @@ void draw(){
 				posX-=32;
 			}
 		}	
-		if(sair==true && reset==false && pausa==false && venceu==false && perdeu==false){
+		if(sair && !reset && !pausa && !venceu && !perdeu){
 			Mix_PauseMusic();
 			desenhaTexturaEstatica(960,540,960,540,imagemSair);
 		}
-		else if(sair==false && reset==true && pausa==false && venceu==false && perdeu==false){
+		else if(!sair && reset && !pausa && !venceu && !perdeu){
 			Mix_PauseMusic();
 			desenhaTexturaEstatica(960,540,960,540,imagemReset);
 		}
-		else if(sair==false && reset==false && pausa==true && venceu==false && perdeu==false){
+		else if(!sair && !reset && pausa && !venceu && !perdeu){
 			Mix_PauseMusic();
 			desenhaTexturaEstatica(960,540,960,180,imagemPause);
 		}
-		else if(venceu==true)
+		else if(venceu)
 			desenhaTexturaEstatica(960,540,960,540,vitoria);
-		else if(perdeu==true)
+		else if(perdeu)
 			desenhaTexturaEstatica(960,540,960,540,derrota);
 	}
 	else if(telaAtual==INSTRUCOES){
@@ -460,6 +491,7 @@ void draw(){
 		else
 			desenhaTexturaEstatica(960,390,130,33,imagemVoltar);
 	}
+	
 	glutSwapBuffers();
 }
 //Função que verifica se o player pode ou não atirar. O tempo muda de acordo com a dificuldade
@@ -478,17 +510,15 @@ void atira(int x, int y){
 }
 //Cria uma bala das naves inimigas
 void navesAtirar(int valor){
-	if(telaAtual==JOJINHO && venceu==false && perdeu==false){
-		for(int i=0;i<dificuldade;i++){
-			if(pausa==false && reset==false && sair==false){
-				srand(time(0));
-				Bullet enemyBullet;
-				valor = rand()%inimigos.size();
-				enemyBullet.x = inimigos[valor].posicaoX;
-				enemyBullet.y = inimigos[valor].posicaoY;
-				enemyBullets.push_back(enemyBullet);
-				Mix_PlayChannel(-1,tirotf,0);
-			}
+	if(telaAtual==JOJINHO && !venceu && !perdeu){
+		if(!pausa && !reset && !sair){
+			srand(time(0));
+			Bullet enemyBullet;
+			valor = rand()%inimigos.size();
+			enemyBullet.x = inimigos[valor].posicaoX;
+			enemyBullet.y = inimigos[valor].posicaoY;
+			enemyBullets.push_back(enemyBullet);
+			Mix_PlayChannel(-1,tirotf,0);
 		}
 	}
 	glutTimerFunc(5000,navesAtirar,0);
@@ -548,10 +578,10 @@ void keyboard(unsigned char key, int x, int y){
 			break;
 		case 's':
 		case 'S':
-			if(sair==true && reset==false){
+			if(sair && !reset){
 				if(telaAtual==JOJINHO){
 					Mix_HaltMusic();
-					trocaTela(1);
+					trocaTela(MENU);
 					tocaMusica();
 					sair=false;
 				}
@@ -559,111 +589,113 @@ void keyboard(unsigned char key, int x, int y){
 					exit(0);
 				}
 			}
-			else if(sair==false && reset==true){
+			else if(!sair && reset){
 				reset=false;
 				Mix_RewindMusic();
 				resetar();
 				Mix_ResumeMusic();
 			}
-			else if(venceu==true){
+			else if(venceu){
 				resetar();
 				Mix_RewindMusic();
 				venceu=false;
 			}
-			else if(perdeu==true){
+			else if(perdeu){
 				resetar();
 				Mix_RewindMusic();
+				pontuacao=0;
 				perdeu=false;
 			}
 			break;
 		case 'n':
 		case 'N':
-			if(sair==true && reset==false && pausa==false){
+			if(sair && !reset && !pausa){
 				sair=false;
 				Mix_ResumeMusic();
 			}
-			else if(sair==false && reset==true && pausa==false){
+			else if(!sair && reset && !pausa){
 				reset=false;
 				Mix_ResumeMusic();
 			}
-			else if(venceu==true){
+			else if(venceu){
 				Mix_HaltMusic();
-				trocaTela(1);
+				trocaTela(MENU);
 				tocaMusica();
 			}
-			else if(perdeu==true){
+			else if(perdeu){
 				Mix_HaltMusic();
-				trocaTela(1);
+				trocaTela(MENU);
 				tocaMusica();
 			}
 			break;
 		case 13: //enter
 			if(telaAtual==MENU && selecao==1 && aux==1){
 				Mix_HaltMusic();
-				trocaTela(4);
+				trocaTela(JOJINHO);
+				pontuacao=0;
 				glutTimerFunc(5000,navesAtirar,0);
 				resetar();
 				tocaMusica();
 			}
 			else if(telaAtual==MENU && selecao==2 && aux==1){
-				trocaTela(2);
+				trocaTela(OPCOES);
 				selecao=1;
 			}
 			else if(telaAtual==MENU && selecao==3 && aux==1){
-				trocaTela(5);
+				trocaTela(INSTRUCOES);
 				selecao=1;
 			}
 			else if(telaAtual==MENU && selecao==4 && aux==1){
 				sair=true;
 			}
 			else if(telaAtual==OPCOES && selecao==1){
-				trocaTela(6);
+				trocaTela(DIFICULDADES);
 			}
 			else if(telaAtual==OPCOES && selecao==2){
-				trocaTela(3);
+				trocaTela(CREDITOS);
 				selecao=1;
 			}
 			else if(telaAtual==OPCOES && selecao==3){
-				trocaTela(1);
+				trocaTela(MENU);
 				selecao=1;
 			}
 			else if(telaAtual==DIFICULDADES && selecao==1){
 				dificuldade=1;
-				trocaTela(2);
+				trocaTela(OPCOES);
 				selecao=1;	
 			}
 			else if(telaAtual==DIFICULDADES && selecao==2){
 				dificuldade=2;
-				trocaTela(2);
+				trocaTela(OPCOES);
 				selecao=1;
 			}
 			else if(telaAtual==DIFICULDADES && selecao==3){
 				dificuldade=3;
-				trocaTela(2);
+				trocaTela(OPCOES);
 				selecao=1;
 			}
 			else if(telaAtual==DIFICULDADES && selecao==4){
-				trocaTela(2);
+				trocaTela(OPCOES);
 				selecao=1;
 			}
 			break;
 		case 27:
-			if(telaAtual==JOJINHO && sair==false && reset==false && pausa==false)
+			if(telaAtual==JOJINHO && !sair && !reset && !pausa)
 				sair=true;
 			else if(telaAtual==MENU)
 				sair=true;
 			else if(telaAtual==OPCOES)
-				trocaTela(1);
+				trocaTela(MENU);
 			else if(telaAtual==INSTRUCOES)
-				trocaTela(1);
+				trocaTela(MENU);
 			else if(telaAtual==CREDITOS)
-				trocaTela(2);
+				trocaTela(OPCOES);
 			else if(telaAtual==DIFICULDADES)
-				trocaTela(2);
+				trocaTela(OPCOES);
 			break;
 		case 32:
-			if(pausa==false && reset==false && sair==false && telaAtual == JOJINHO){
-				if(podeAtirar==true){
+			if(!pausa && !reset && !sair && telaAtual == JOJINHO){
+				if(podeAtirar){
 					atira(jogador.posicaoX, jogador.posicaoY);
 					Mix_PlayChannel(-1,tiro,0);
 			    	trocaValorAtira(0);
@@ -674,12 +706,12 @@ void keyboard(unsigned char key, int x, int y){
 			break;
 		case 'r':
 		case 'R':
-			if(pausa==false && sair==false)
+			if(!pausa && !sair)
 				reset=true;
 			break;
 		case 'p':
 		case 'P':
-			if(sair==false && reset==false && pausa==false)
+			if(!sair && !reset && !pausa)
 				pausa=true;
 			else{
 				pausa=false;
@@ -761,7 +793,7 @@ void atualizaCena(int tempo){
 				alfa-=0.01;
 			else{
 				alfa=1;
-				trocaTela(1);
+				trocaTela(MENU);
 			}
 		}
 		if(alfa>=1){
@@ -785,6 +817,7 @@ void atualizaCena(int tempo){
 	//Aqui fica a lógica do jogo
 	if(telaAtual==JOJINHO){
 		tocaMusica();
+		deslocaFundo1-=delta1;
 		for(int i=0;i<inimigos.size();i++){
 			if(checarColisaoPlayerNaves(jogador,inimigos[i]))
 				exit(0);
@@ -808,7 +841,7 @@ void atualizaCena(int tempo){
 		if(checarVitoria()){
 			 venceu=true;
 		}
-		if(sair==false && reset==false && pausa==false && venceu==false && perdeu==false){
+		if(!sair && !reset && !pausa && !venceu && !perdeu){
 			mover();
 			verificaPosicao();
 			moverNaves();
