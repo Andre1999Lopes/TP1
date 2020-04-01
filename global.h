@@ -1,4 +1,6 @@
-
+/*
+	Este arquivo inclui as variáveis globais usadas no jogo.
+*/
 bool pausa=false;
 bool sair=false;
 bool reset=false;

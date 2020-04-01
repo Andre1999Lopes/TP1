@@ -1,6 +1,8 @@
 #include "utility.h"
-//#include "global.h"
 
+/*
+	Este arquivo inclui as implementações das callbacks.
+*/
 void draw(){
 	glClear(GL_COLOR_BUFFER_BIT);
 	glColor4f(1,1,1,alfa);
@@ -216,6 +218,7 @@ void keyboard(unsigned char key, int x, int y){
 		case 13: //enter
 			if(telaAtual==MENU && selecao==1 && aux==1){
 				Mix_HaltMusic();
+				enemyBullets.clear();
 				trocaTela(JOJINHO);
 				pontuacao=0;
 				glutTimerFunc(5000,navesAtirar,0);

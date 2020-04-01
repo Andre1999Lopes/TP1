@@ -1,3 +1,7 @@
+/*
+	Este arquivo inclui as assinaturas de funções e procedimentos usados no jogo.
+*/
+
 void desenhaTiro();
 void navesAtirar(int valor);
 GLuint carregaTexturas(const char *arquivo);

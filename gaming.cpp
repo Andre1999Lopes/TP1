@@ -1,5 +1,10 @@
-//#include "global.h"
 #include "utility.h"
+
+/*
+	Este arquivo implementa as funções de jogo.
+*/
+
+
 //Função que reinicia o jogador, os inimigos e os recoloca em suas posições iniciais
 void resetar(){
 	inimigos.clear();
@@ -9,6 +14,7 @@ void resetar(){
 	if(movimentoInimigos<0)
 		movimentoInimigos*=-1;
 }
+
 //Função que verifica se os inimigos chegaram na borda da parte jogável da tela
 void verificaPosicao(){
 	for(int i=0;i<inimigos.size();i++){
@@ -28,16 +34,19 @@ void verificaPosicao(){
 		}
 	}
 }
+
 //Função que troca o valor da tela pelo valor recebido
 void trocaTela(int valor){
 	telaAtual=valor;
 }
+
 //Função que muda a posição das naves inimigas
 void moverNaves(){
 	for(int i=0;i<inimigos.size();i++){
 		inimigos[i].posicaoX+=movimentoInimigos;
 	}
 }
+
 //Em teoria, esta é a função que desenha um fundo animado. Não faço ideia do pq não tá funcionando, mas acontece
 void desenhaFundo(){
 	glEnable(GL_TEXTURE_2D);
@@ -57,6 +66,7 @@ void desenhaFundo(){
     glDisable(GL_TEXTURE_2D);
     glFlush();
 }
+
 //Função que desenha um retângulo dados a sua posição no eixo X e no eixo Y, sua largura, sua altura e a textura a ser utilizada. Textura estática
 void desenhaTexturaEstatica(float x, float y, float larg, float alt, GLuint textura){
 	glEnable(GL_TEXTURE_2D);
@@ -73,6 +83,7 @@ void desenhaTexturaEstatica(float x, float y, float larg, float alt, GLuint text
     glDisable(GL_TEXTURE_2D);
     glFlush();
 }
+
 //Função que inicializa o vector de inimigos e dá uma posição para cada um
 void iniciarInimigos(){
 	incrementoX=0;
@@ -93,24 +104,28 @@ void iniciarInimigos(){
 		}
 	}
 }
+
 //Função que checa colisão entre as balas atiradas pelo jogador e as naves inimigas. Método AABB
 GLboolean checarColisao(Enemies enemy, Bullet bala){
 	bool colisaoX = (enemy.posicaoX + (enemy.larg)/2 >= (bala.x - 2)) && (bala.x + 2 >= enemy.posicaoX - (enemy.larg)/2);
     bool colisaoY = (enemy.posicaoY + (enemy.alt)/2 >= (bala.y - 15)) && (bala.y + 15 >= enemy.posicaoY - (enemy.alt)/2);
 	return colisaoX && colisaoY;
 }
+
 //Função que checa colisão entre as balas atiradas pelos inimigos e o jogador. Método AABB
 GLboolean checarColisaoPlayerBala(Player player, Bullet bala){
 	bool colisaoX = (player.posicaoX + (player.larg)/2 >= bala.x - 2) && (bala.x + 2 >= player.posicaoX - (player.larg/2));
     bool colisaoY = (player.posicaoY + (player.alt)/2 >= bala.y - 15) && (bala.y + 15 >= player.posicaoY - (player.alt/2));
 	return colisaoX && colisaoY;
 }
+
 //Função que checa colisão entre as naves inimigas e o jogador. Método AABB
 GLboolean checarColisaoPlayerNaves(Player player, Enemies enemy){
 	bool colisaoX = (player.posicaoX + (player.larg)/2 >= enemy.posicaoX - (enemy.larg)/2) && (enemy.posicaoX + (enemy.larg)/2 >= player.posicaoX - (enemy.larg)/2);
     bool colisaoY = (player.posicaoY + (player.alt)/2 >= enemy.posicaoY - (enemy.alt)/2) && (enemy.posicaoY + (enemy.larg)/2 >= player.posicaoY - (enemy.alt)/2);
 	return colisaoX && colisaoY;
 }
+
 //Função que muda a posição do jogador baseada em uma constante de movimento
 void mover(){
 	if(direita==true && jogador.posicaoX<1700)
@@ -118,6 +133,7 @@ void mover(){
 	if(esquerda==true && jogador.posicaoX>200)
 		jogador.posicaoX-=movimentoJogador;
 }
+
 //Função de checagem de vitória
 GLboolean checarVitoria(){
 	if(inimigos.size()==0)
@@ -143,7 +159,6 @@ void iniciarJogador(){
 	jogador.textura = carregaTexturas("imgs/mfalconAnimado.png");
 }
 
-
 void desenhaTexturaAnimada(float x, float y, float larg, float alt, GLuint textura, float tamanho, float estado){
 	glEnable(GL_TEXTURE_2D);
     glBindTexture(GL_TEXTURE_2D, textura);
@@ -160,6 +175,7 @@ void desenhaTexturaAnimada(float x, float y, float larg, float alt, GLuint textu
     glFlush();
 
 }
+
 //Função que muda a música de acordo com a tela na qual o jogador se encontra
 void tocaMusica(){
 	if(telaAtual == MENU && !Mix_PlayingMusic()){
@@ -171,6 +187,7 @@ void tocaMusica(){
 		Mix_VolumeMusic(96);
 	}
 }
+
 //Função que inicializa as texturas do menu
 void iniciarTexturas(){
 	longTime = carregaTexturas("imgs/a-long-time.png");
@@ -217,6 +234,7 @@ void iniciarTexturas(){
 	n9 = carregaTexturas("imgs/9.png");
 	vidas = carregaTexturas("imgs/simbolo-resistencia.png");
 }
+
 //Função que inicializa o jogo no geral
 void setup(){
 	glClearColor(0,0,0,0);
@@ -236,8 +254,6 @@ void setup(){
 }
 
 
-
-
 //Função que verifica se o player pode ou não atirar. O tempo muda de acordo com a dificuldade
 void trocaValorAtira(int x){
 	if(podeAtirar)
@@ -245,6 +261,7 @@ void trocaValorAtira(int x){
 	else
 		podeAtirar = true;
 }
+
 //Cria uma bala do jogador
 void atira(int x, int y){
 		Bullet bullet;
@@ -252,6 +269,7 @@ void atira(int x, int y){
 		bullet.y = y;
 		bullets.push_back(bullet);
 }
+
 //Cria uma bala das naves inimigas
 void navesAtirar(int valor){
 	if(telaAtual==JOJINHO && !venceu && !perdeu){
@@ -263,10 +281,11 @@ void navesAtirar(int valor){
 			enemyBullet.y = inimigos[valor].posicaoY;
 			enemyBullets.push_back(enemyBullet);
 			Mix_PlayChannel(-1,tirotf,0);
+			glutTimerFunc(5000,navesAtirar,0);
 		}
 	}
-	glutTimerFunc(5000,navesAtirar,0);
 }
+
 //Desenha um tiro. Se a posição do tiro ultrapassar a altura máxima da tela, o tiro é apagado da memória
 void desenhaTiro(){
 	for(int i = 0; i < bullets.size();i++){
@@ -287,6 +306,7 @@ void desenhaTiro(){
 	   bullets[i].y+=25;
 	}
 }
+
 //Mesma coisa da função de cima, porém para as naves inimigas
 void desenhaTiroInimigo(){
 	for(int i = 0; i < enemyBullets.size();i++){
