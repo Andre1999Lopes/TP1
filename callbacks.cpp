@@ -306,6 +306,11 @@ void keyboard(unsigned char key, int x, int y){
 				Mix_ResumeMusic();
 			}
 			break;
+		case 'c':
+		case 'C':
+			texturaAtual++;
+			trocaTextura();
+			break;
 		default:
 			break;
 	}

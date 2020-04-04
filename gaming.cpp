@@ -156,7 +156,7 @@ void iniciarJogador(){
 	jogador.vida=2;
 	jogador.estado=1.0;
 	jogador.tamanho=3.0;
-	jogador.textura = carregaTexturas("imgs/mfalconAnimado.png");
+	trocaTextura();
 }
 
 void desenhaTexturaAnimada(float x, float y, float larg, float alt, GLuint textura, float tamanho, float estado){
@@ -190,6 +190,8 @@ void tocaMusica(){
 
 //Função que inicializa as texturas do menu
 void iniciarTexturas(){
+	mfalcon = carregaTexturas("imgs/mfalconAnimado.png");
+	xwing = carregaTexturas("imgs/x-wingAnimado.png");
 	longTime = carregaTexturas("imgs/a-long-time.png");
 	imagemLogo = carregaTexturas("imgs/star-wars-logo.png");
 	imagemInstrucao = carregaTexturas("imgs/instrucoes.png");
@@ -305,6 +307,15 @@ void desenhaTiro(){
 	   glPopMatrix();
 	   bullets[i].y+=25;
 	}
+}
+
+void trocaTextura(){
+	if(texturaAtual==3)
+		texturaAtual=1;
+	if(texturaAtual==1)
+		jogador.textura=mfalcon;
+	else if(texturaAtual==2)
+		jogador.textura=xwing;
 }
 
 //Mesma coisa da função de cima, porém para as naves inimigas

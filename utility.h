@@ -40,4 +40,4 @@ void atira(int x, int y);
 void navesAtirar(int valor);
 void desenhaTiro();
 void desenhaTiroInimigo();
-
+void trocaTextura();
