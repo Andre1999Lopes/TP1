@@ -1,14 +1,15 @@
 /*
 	Este arquivo inclui as variáveis globais usadas no jogo.
 */
+#define larguraMundo 1920
+#define alturaMundo 1080
+
 bool pausa=false;
 bool sair=false;
 bool reset=false;
 bool direita;
 bool esquerda;
 int dificuldade=1;
-float larguraTela=1920;
-float alturaTela=1080;
 float movimentoJogador=10;
 float movimentoInimigos=4;
 bool podeAtirar = true;

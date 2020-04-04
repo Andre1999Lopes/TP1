@@ -143,10 +143,27 @@ void draw(){
 }
 
 void reshape(int width, int height){
-	glViewport(0, 0, width, height);
   	glMatrixMode(GL_PROJECTION);
    	glLoadIdentity();
-   	glOrtho(0, 1920, 0, 1080, -1, 1);
+   	glOrtho(0, larguraMundo, 0, alturaMundo, -1, 1);
+   	float aspectoJanela = ((float)width)/height;
+    float aspectoMundo = ((float) larguraMundo)/ alturaMundo;
+    // se a janela está menos larga do que o mundo (16:9)...
+    if (aspectoJanela < aspectoMundo) {
+        // vamos colocar barras verticais (acima e abaixo)
+        float hViewport = width / aspectoMundo;
+        float yViewport = (height - hViewport)/2;
+        glViewport(0, yViewport, width, hViewport);
+    }
+    // se a janela está mais larga (achatada) do que o mundo (16:9)...
+    else if (aspectoJanela > aspectoMundo) {
+        // vamos colocar barras horizontais (esquerda e direita)
+        float wViewport = ((float)height) * aspectoMundo;
+        float xViewport = (width - wViewport)/2;
+        glViewport(xViewport, 0, wViewport, height);
+    }
+    else
+        glViewport(0, 0, width, height);
    	glMatrixMode(GL_MODELVIEW);
    	glLoadIdentity();
 }
