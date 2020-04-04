@@ -16,6 +16,8 @@ void keyboard(unsigned char key, int x, int y);
 void keyboardUp(unsigned char key, int x, int y);
 void specialKeyboard(int key, int x, int y);
 void specialKeyboardUp(int key, int x, int y);
+void mouse(int button, int x, int y);
+void mouseMotion(int x, int y);
 void atualizaCena(int tempo);
 void resetar();
 void verificaPosicao();

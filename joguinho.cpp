@@ -41,6 +41,8 @@ int main(int argc, char **argv){
 	glutKeyboardUpFunc(keyboardUp);
 	glutSpecialUpFunc(specialKeyboardUp);
 	glutSpecialFunc(specialKeyboard);
+	glutMouseFunc(mouse);
+	glutMotionFunc(mouseMotion);
 	glutTimerFunc(0,atualizaCena,33);
 	glutMainLoop();
 }

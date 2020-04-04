@@ -388,6 +388,47 @@ void specialKeyboardUp(int key, int x, int y){
 	}
 }
 
+void mouse(int button, int state, int x, int y){
+	if(button==GLUT_LEFT_BUTTON && state==GLUT_DOWN){
+		if(x>glutGet(GLUT_WINDOW_WIDTH)/2){
+			direita=true;
+			jogador.estado=2;
+		}
+		else{
+			esquerda=true;
+			jogador.estado=0;
+		}
+	}
+	else if(button==GLUT_LEFT_BUTTON && state==GLUT_UP){
+		direita=false;
+		esquerda=false;
+		jogador.estado=1;
+	}
+	else if(button==GLUT_RIGHT_BUTTON && state==GLUT_DOWN){
+		if(!pausa && !reset && !sair && telaAtual == JOJINHO){
+			if(podeAtirar){
+				atira(jogador.posicaoX, jogador.posicaoY);
+				Mix_PlayChannel(-1,tiro,0);
+		    	trocaValorAtira(0);
+				glutTimerFunc(dificuldade*1000,trocaValorAtira,0);
+			}
+		}
+	}
+}
+
+void mouseMotion(int x, int y){
+	if(x>glutGet(GLUT_WINDOW_WIDTH)/2){
+		esquerda=false;
+		direita=true;
+		jogador.estado=2;
+	}
+	else{
+		direita=false;
+		esquerda=true;
+		jogador.estado=0;
+	}
+}
+
 void atualizaCena(int tempo){
 	if(telaAtual==SPLASH){
 		if(aux!=0){
