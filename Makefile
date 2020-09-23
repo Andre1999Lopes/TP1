@@ -7,7 +7,7 @@ all:
 	sudo apt-get install libsdl-mixer1.2-dev -y
 	sudo apt install libsdl2-dev libsdl2-2.0-0 -y
 	g++ joguinho.cpp -o jogo -lGL -lglut -lGLEW -lGLU -lSOIL -lSDL -lSDL_mixer
-	
+
 run:
 	./jogo
 
