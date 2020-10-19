@@ -10,7 +10,7 @@ GLboolean checarColisao();
 void iniciarJogador();
 void iniciarInimigos();
 void desenhaTiroInimigo();
-void desenha();
+void draw();
 void reshape(int width, int height);
 void keyboard(unsigned char key, int x, int y);
 void keyboardUp(unsigned char key, int x, int y);

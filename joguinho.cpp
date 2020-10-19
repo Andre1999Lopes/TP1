@@ -35,7 +35,7 @@ int main(int argc, char **argv){
 	glutInitWindowSize(1920,1080);
 	glutCreateWindow("Star Wars - the game");
 	setup();
-	glutDisplayFunc(desenha);
+	glutDisplayFunc(draw);
 	glutReshapeFunc(reshape);
 	glutKeyboardFunc(keyboard);
 	glutKeyboardUpFunc(keyboardUp);

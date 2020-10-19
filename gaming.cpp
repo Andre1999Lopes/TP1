@@ -8,7 +8,7 @@
 //Função que reinicia o jogador, os inimigos e os recoloca em suas posições iniciais
 void resetar(){
 	inimigos.clear();
-	bullets.clear();
+	balas.clear();
 	iniciarJogador();
 	iniciarInimigos();
 	if(movimentoInimigos<0)
@@ -114,8 +114,8 @@ GLboolean checarColisao(Inimigo inimigo, Bala bala){
 
 //Função que checa colisão entre as balas atiradas pelos inimigos e o jogador. Método AABB
 GLboolean checarColisaoJogadorBala(Jogador jogador, Bala bala){
-	bool colisaoX = (player.posicaoX + (player.larg)/2 >= bala.x - 2) && (bala.x + 2 >= player.posicaoX - (player.larg/2));
-    bool colisaoY = (player.posicaoY + (player.alt)/2 >= bala.y - 15) && (bala.y + 15 >= player.posicaoY - (player.alt/2));
+	bool colisaoX = (jogador.posicaoX + (jogador.larg)/2 >= bala.x - 2) && (bala.x + 2 >= jogador.posicaoX - (jogador.larg/2));
+    bool colisaoY = (jogador.posicaoY + (jogador.alt)/2 >= bala.y - 15) && (bala.y + 15 >= jogador.posicaoY - (jogador.alt/2));
 	return colisaoX && colisaoY;
 }
 
@@ -256,7 +256,7 @@ void setup(){
 }
 
 
-//Função que verifica se o player pode ou não atirar. O tempo muda de acordo com a dificuldade
+//Função que verifica se o jogador pode ou não atirar. O tempo muda de acordo com a dificuldade
 void trocaValorAtira(int x){
 	if(podeAtirar)
 		podeAtirar = false;
@@ -269,7 +269,7 @@ void atira(int x, int y){
 		Bala bala;
 		Bala.x = x;
 		Bala.y = y;
-		bullets.push_back(bala);
+		balas.push_back(bala);
 }
 
 //Cria uma bala das naves inimigas
@@ -290,14 +290,14 @@ void navesAtirar(int valor){
 
 //Desenha um tiro. Se a posição do tiro ultrapassar a altura máxima da tela, o tiro é apagado da memória
 void desenhaTiro(){
-	for(int i = 0; i < bullets.size();i++){
-		if(bullets[i].y>= 1080)
-			bullets.erase(bullets.begin()+i);
+	for(int i = 0; i < balas.size();i++){
+		if(balas[i].y>= 1080)
+			balas.erase(balas.begin()+i);
 	}
-	for(int i = 0; i < bullets.size(); i++){
+	for(int i = 0; i < balas.size(); i++){
 		glColor3f(1.0, 0.0, 0.0);
 		glPushMatrix();
-		glTranslatef (bullets[i].x, bullets[i].y, 0.0);
+		glTranslatef (balas[i].x, balas[i].y, 0.0);
 	    glBegin(GL_POLYGON); 
 	        glVertex3f(-2, 15, 0);
 	        glVertex3f(2, 15, 0);
@@ -305,7 +305,7 @@ void desenhaTiro(){
 	        glVertex3f(-2, -15, 0);
 	        glEnd();
 	   glPopMatrix();
-	   bullets[i].y+=25;
+	   balas[i].y+=25;
 	}
 }
 

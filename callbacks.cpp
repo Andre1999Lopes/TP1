@@ -3,7 +3,7 @@
 /*
 	Este arquivo inclui as implementações das callbacks.
 */
-void desenha(){
+void draw(){
 	glClear(GL_COLOR_BUFFER_BIT);
 	glColor4f(1,1,1,alfa);
 	if(telaAtual==SPLASH){
@@ -468,9 +468,9 @@ void atualizaCena(int tempo){
 		for(int i=0;i<inimigos.size();i++){
 			if(checarColisaoJogadorNaves(jogador,inimigos[i]))
 				exit(0);
-			for(int j=0;j<bullets.size();j++){
-				if(checarColisao(inimigos[i],bullets[j])){
-					bullets.erase(bullets.begin()+j);
+			for(int j=0;j<balas.size();j++){
+				if(checarColisao(inimigos[i],balas[j])){
+					balas.erase(balas.begin()+j);
 					inimigos.erase(inimigos.begin()+i);
 					pontuacao+=50;
 				}
