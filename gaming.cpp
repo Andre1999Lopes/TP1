@@ -267,8 +267,8 @@ void trocaValorAtira(int x){
 //Cria uma bala do jogador
 void atira(int x, int y){
 		Bala bala;
-		Bala.x = x;
-		Bala.y = y;
+		bala.x = x;
+		bala.y = y;
 		balas.push_back(bala);
 }
 
