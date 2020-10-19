@@ -54,7 +54,7 @@ float logoYMenu=800;
 float logoXtamanho=640;
 float logoYtamanho=320;
 static GLfloat deslocaFundo1=0;
-vector<float> biri;
+vector<float> vetorPosicaoLogo;
 long long int pontuacao=0;
 GLuint n0,n1,n2,n3,n4,n5,n6,n7,n8,n9;
 

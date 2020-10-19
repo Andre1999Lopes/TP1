@@ -240,9 +240,9 @@ void iniciarTexturas(){
 //Função que inicializa o jogo no geral
 void setup(){
 	glClearColor(0,0,0,0);
-	biri.push_back(2500);
-	biri.push_back(1800);
-	biri.push_back(400);
+	vetorPosicaoLogo.push_back(2500);
+	vetorPosicaoLogo.push_back(1800);
+	vetorPosicaoLogo.push_back(400);
 	Mix_OpenAudio(44100,MIX_DEFAULT_FORMAT,2,4096);
 	musicaBatalha=Mix_LoadMUS("songs/BattleOfTheHeroes.mp3");
 	musicaMenu=Mix_LoadMUS("songs/Abertura8bit.mp3");
