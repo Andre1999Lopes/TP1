@@ -3,7 +3,7 @@
 /*
 	Este arquivo inclui as implementações das callbacks.
 */
-void draw(){
+void desenha(){
 	glClear(GL_COLOR_BUFFER_BIT);
 	glColor4f(1,1,1,alfa);
 	if(telaAtual==SPLASH){
@@ -231,7 +231,7 @@ void keyboard(unsigned char key, int x, int y){
 		case 13: //enter
 			if(telaAtual==MENU && selecao==1 && aux==1){
 				Mix_HaltMusic();
-				enemyBullets.clear();
+				balasInimigas.clear();
 				trocaTela(JOJINHO);
 				pontuacao=0;
 				glutTimerFunc(5000,navesAtirar,0);
@@ -466,7 +466,7 @@ void atualizaCena(int tempo){
 		tocaMusica();
 		deslocaFundo1-=delta1;
 		for(int i=0;i<inimigos.size();i++){
-			if(checarColisaoPlayerNaves(jogador,inimigos[i]))
+			if(checarColisaoJogadorNaves(jogador,inimigos[i]))
 				exit(0);
 			for(int j=0;j<bullets.size();j++){
 				if(checarColisao(inimigos[i],bullets[j])){
@@ -476,9 +476,9 @@ void atualizaCena(int tempo){
 				}
 			}
 		}
-		for(int i=0;i<enemyBullets.size();i++){
-			if(checarColisaoPlayerBala(jogador,enemyBullets[i])){
-				enemyBullets.erase(enemyBullets.begin()+i);
+		for(int i=0;i<balasInimigas.size();i++){
+			if(checarColisaoJogadorBala(jogador,balasInimigas[i])){
+				balasInimigas.erase(balasInimigas.begin()+i);
 				jogador.vida--;
 			}
 			if(jogador.vida==0){
