@@ -4,7 +4,9 @@ Trabalho desenvolvido pelos alunos [Danilo Gonçalves](https://github.com/danilo
 
 ## Comandos (Linux baseados em Debian ou Ubuntu)
 
-make -> instala as bibliotecas necessárias para o funcionamento do jogo e compila o código.
+make install-libraries -> instala as bibliotecas necessárias para o funcionamento do jogo.
+
+make -> compila o código do jogo.
 
 make run -> inicia o jogo após a sua compilação.
 
