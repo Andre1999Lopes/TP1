@@ -54,11 +54,11 @@ float logoYMenu=800;
 float logoXtamanho=640;
 float logoYtamanho=320;
 static GLfloat deslocaFundo1=0;
-vector<float> biri;
+vector<float> vetorPosicaoLogo;
 long long int pontuacao=0;
 GLuint n0,n1,n2,n3,n4,n5,n6,n7,n8,n9;
 
-typedef struct Player{
+typedef struct Jogador{
 	float posicaoX;
 	float posicaoY;
 	int vida;
@@ -67,22 +67,22 @@ typedef struct Player{
 	float estado;
 	float tamanho;
 	GLuint textura;
-} Player;
+} Jogador;
 
-typedef struct Enemies{
+typedef struct Inimigo{
 	float posicaoX;
 	float posicaoY;
 	int larg=50;
 	int alt=50;
 	GLuint textura;
-} Enemies;
+} Inimigo;
 
-typedef struct Bullet{
+typedef struct Bala{
 	float x;
 	float y;
-}Bullet;
+}Bala;
 
-vector<Bullet> bullets;
-vector<Bullet> enemyBullets;
-Player jogador;
-vector<Enemies> inimigos;
+vector<Bala> balas;
+vector<Bala> balasInimigas;
+Jogador jogador;
+vector<Inimigo> inimigos;

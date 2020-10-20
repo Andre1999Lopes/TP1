@@ -8,7 +8,7 @@
 //Função que reinicia o jogador, os inimigos e os recoloca em suas posições iniciais
 void resetar(){
 	inimigos.clear();
-	bullets.clear();
+	balas.clear();
 	iniciarJogador();
 	iniciarInimigos();
 	if(movimentoInimigos<0)
@@ -90,7 +90,7 @@ void iniciarInimigos(){
 	decrementoY=0;
 	int cont=0;
 	for(int i=0;i<vetorInimigos;i++){
-		Enemies inimigo;
+		Inimigo inimigo;
 		inimigo.posicaoX=500+incrementoX;
 		inimigo.posicaoY=980-decrementoY;
 		inimigo.textura = carregaTexturas("imgs/nave1.png");
@@ -106,23 +106,23 @@ void iniciarInimigos(){
 }
 
 //Função que checa colisão entre as balas atiradas pelo jogador e as naves inimigas. Método AABB
-GLboolean checarColisao(Enemies enemy, Bullet bala){
-	bool colisaoX = (enemy.posicaoX + (enemy.larg)/2 >= (bala.x - 2)) && (bala.x + 2 >= enemy.posicaoX - (enemy.larg)/2);
-    bool colisaoY = (enemy.posicaoY + (enemy.alt)/2 >= (bala.y - 15)) && (bala.y + 15 >= enemy.posicaoY - (enemy.alt)/2);
+GLboolean checarColisao(Inimigo inimigo, Bala bala){
+	bool colisaoX = (inimigo.posicaoX + (inimigo.larg)/2 >= (bala.x - 2)) && (bala.x + 2 >= inimigo.posicaoX - (inimigo.larg)/2);
+    bool colisaoY = (inimigo.posicaoY + (inimigo.alt)/2 >= (bala.y - 15)) && (bala.y + 15 >= inimigo.posicaoY - (inimigo.alt)/2);
 	return colisaoX && colisaoY;
 }
 
 //Função que checa colisão entre as balas atiradas pelos inimigos e o jogador. Método AABB
-GLboolean checarColisaoPlayerBala(Player player, Bullet bala){
-	bool colisaoX = (player.posicaoX + (player.larg)/2 >= bala.x - 2) && (bala.x + 2 >= player.posicaoX - (player.larg/2));
-    bool colisaoY = (player.posicaoY + (player.alt)/2 >= bala.y - 15) && (bala.y + 15 >= player.posicaoY - (player.alt/2));
+GLboolean checarColisaoJogadorBala(Jogador jogador, Bala bala){
+	bool colisaoX = (jogador.posicaoX + (jogador.larg)/2 >= bala.x - 2) && (bala.x + 2 >= jogador.posicaoX - (jogador.larg/2));
+    bool colisaoY = (jogador.posicaoY + (jogador.alt)/2 >= bala.y - 15) && (bala.y + 15 >= jogador.posicaoY - (jogador.alt/2));
 	return colisaoX && colisaoY;
 }
 
 //Função que checa colisão entre as naves inimigas e o jogador. Método AABB
-GLboolean checarColisaoPlayerNaves(Player player, Enemies enemy){
-	bool colisaoX = (player.posicaoX + (player.larg)/2 >= enemy.posicaoX - (enemy.larg)/2) && (enemy.posicaoX + (enemy.larg)/2 >= player.posicaoX - (enemy.larg)/2);
-    bool colisaoY = (player.posicaoY + (player.alt)/2 >= enemy.posicaoY - (enemy.alt)/2) && (enemy.posicaoY + (enemy.larg)/2 >= player.posicaoY - (enemy.alt)/2);
+GLboolean checarColisaoJogadorNaves(Jogador jogador, Inimigo inimigo){
+	bool colisaoX = (jogador.posicaoX + (jogador.larg)/2 >= inimigo.posicaoX - (inimigo.larg)/2) && (inimigo.posicaoX + (inimigo.larg)/2 >= jogador.posicaoX - (inimigo.larg)/2);
+    bool colisaoY = (jogador.posicaoY + (jogador.alt)/2 >= inimigo.posicaoY - (inimigo.alt)/2) && (inimigo.posicaoY + (inimigo.larg)/2 >= jogador.posicaoY - (inimigo.alt)/2);
 	return colisaoX && colisaoY;
 }
 
@@ -240,9 +240,9 @@ void iniciarTexturas(){
 //Função que inicializa o jogo no geral
 void setup(){
 	glClearColor(0,0,0,0);
-	biri.push_back(2500);
-	biri.push_back(1800);
-	biri.push_back(400);
+	vetorPosicaoLogo.push_back(2500);
+	vetorPosicaoLogo.push_back(1800);
+	vetorPosicaoLogo.push_back(400);
 	Mix_OpenAudio(44100,MIX_DEFAULT_FORMAT,2,4096);
 	musicaBatalha=Mix_LoadMUS("songs/BattleOfTheHeroes.mp3");
 	musicaMenu=Mix_LoadMUS("songs/Abertura8bit.mp3");
@@ -256,7 +256,7 @@ void setup(){
 }
 
 
-//Função que verifica se o player pode ou não atirar. O tempo muda de acordo com a dificuldade
+//Função que verifica se o jogador pode ou não atirar. O tempo muda de acordo com a dificuldade
 void trocaValorAtira(int x){
 	if(podeAtirar)
 		podeAtirar = false;
@@ -266,10 +266,10 @@ void trocaValorAtira(int x){
 
 //Cria uma bala do jogador
 void atira(int x, int y){
-		Bullet bullet;
-		bullet.x = x;
-		bullet.y = y;
-		bullets.push_back(bullet);
+		Bala bala;
+		bala.x = x;
+		bala.y = y;
+		balas.push_back(bala);
 }
 
 //Cria uma bala das naves inimigas
@@ -277,11 +277,11 @@ void navesAtirar(int valor){
 	if(telaAtual==JOJINHO && !venceu && !perdeu){
 		if(!pausa && !reset && !sair){
 			srand(time(0));
-			Bullet enemyBullet;
+			Bala balaInimiga;
 			valor = rand()%inimigos.size();
-			enemyBullet.x = inimigos[valor].posicaoX;
-			enemyBullet.y = inimigos[valor].posicaoY;
-			enemyBullets.push_back(enemyBullet);
+			balaInimiga.x = inimigos[valor].posicaoX;
+			balaInimiga.y = inimigos[valor].posicaoY;
+			balasInimigas.push_back(balaInimiga);
 			Mix_PlayChannel(-1,tirotf,0);
 			glutTimerFunc(5000,navesAtirar,0);
 		}
@@ -290,14 +290,14 @@ void navesAtirar(int valor){
 
 //Desenha um tiro. Se a posição do tiro ultrapassar a altura máxima da tela, o tiro é apagado da memória
 void desenhaTiro(){
-	for(int i = 0; i < bullets.size();i++){
-		if(bullets[i].y>= 1080)
-			bullets.erase(bullets.begin()+i);
+	for(int i = 0; i < balas.size();i++){
+		if(balas[i].y>= 1080)
+			balas.erase(balas.begin()+i);
 	}
-	for(int i = 0; i < bullets.size(); i++){
+	for(int i = 0; i < balas.size(); i++){
 		glColor3f(1.0, 0.0, 0.0);
 		glPushMatrix();
-		glTranslatef (bullets[i].x, bullets[i].y, 0.0);
+		glTranslatef (balas[i].x, balas[i].y, 0.0);
 	    glBegin(GL_POLYGON); 
 	        glVertex3f(-2, 15, 0);
 	        glVertex3f(2, 15, 0);
@@ -305,7 +305,7 @@ void desenhaTiro(){
 	        glVertex3f(-2, -15, 0);
 	        glEnd();
 	   glPopMatrix();
-	   bullets[i].y+=25;
+	   balas[i].y+=25;
 	}
 }
 
@@ -320,14 +320,14 @@ void trocaTextura(){
 
 //Mesma coisa da função de cima, porém para as naves inimigas
 void desenhaTiroInimigo(){
-	for(int i = 0; i < enemyBullets.size();i++){
-		if(enemyBullets[i].y<=0)
-			enemyBullets.erase(enemyBullets.begin()+i);
+	for(int i = 0; i < balasInimigas.size();i++){
+		if(balasInimigas[i].y<=0)
+			balasInimigas.erase(balasInimigas.begin()+i);
 	}
-	for(int i = 0; i < enemyBullets.size(); i++){
+	for(int i = 0; i < balasInimigas.size(); i++){
 		glColor3f(0.0, 1.0, 0.0);
 		glPushMatrix();
-		glTranslatef (enemyBullets[i].x, enemyBullets[i].y, 0.0);
+		glTranslatef (balasInimigas[i].x, balasInimigas[i].y, 0.0);
 	    glBegin(GL_POLYGON); 
 	        glVertex3f(-2, 15, 0);
 	        glVertex3f(2, 15, 0);
@@ -335,6 +335,6 @@ void desenhaTiroInimigo(){
 	        glVertex3f(-2, -15, 0);
 	        glEnd();
 	   glPopMatrix();
-	   enemyBullets[i].y-=25;
+	   balasInimigas[i].y-=25;
 	}
 }

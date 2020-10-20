@@ -14,7 +14,7 @@ void draw(){
 			desenhaTexturaEstatica(960,540,960,540,imagemSair);
 		else{
 			desenhaTexturaEstatica(960,540,1920,1080,fundo1);
-			desenhaTexturaEstatica(960,biri[2],biri[0],biri[1],imagemLogo);
+			desenhaTexturaEstatica(960,vetorPosicaoLogo[2],vetorPosicaoLogo[0],vetorPosicaoLogo[1],imagemLogo);
 			/*A variável aux serve para verificar se a introdução do jogo já foi ou não finalizada para que se possa desenhar
 			as opções do menu*/
 			if(aux==1){
@@ -38,7 +38,7 @@ void draw(){
 		}
 	}
 	else if(telaAtual==OPCOES){
-		desenhaTexturaEstatica(960,biri[2],biri[0],biri[1],imagemLogo);
+		desenhaTexturaEstatica(960,vetorPosicaoLogo[2],vetorPosicaoLogo[0],vetorPosicaoLogo[1],imagemLogo);
 		if(selecao==1)
 			desenhaTexturaEstatica(960,540,200,33,imagemDificuldadeSel);
 		else
@@ -120,7 +120,7 @@ void draw(){
 		desenhaTexturaEstatica(960,540,1820,1020,imagemInstrucoes);
 	}
 	else if(telaAtual==DIFICULDADES){
-		desenhaTexturaEstatica(960,biri[2],biri[0],biri[1],imagemLogo);
+		desenhaTexturaEstatica(960,vetorPosicaoLogo[2],vetorPosicaoLogo[0],vetorPosicaoLogo[1],imagemLogo);
 		if(selecao==1)
 			desenhaTexturaEstatica(960,540,230,33,facilSel);
 		else
@@ -231,7 +231,7 @@ void keyboard(unsigned char key, int x, int y){
 		case 13: //enter
 			if(telaAtual==MENU && selecao==1 && aux==1){
 				Mix_HaltMusic();
-				enemyBullets.clear();
+				balasInimigas.clear();
 				trocaTela(JOJINHO);
 				pontuacao=0;
 				glutTimerFunc(5000,navesAtirar,0);
@@ -452,13 +452,13 @@ void atualizaCena(int tempo){
 	//Aqui é verificado se a logo já ficou no tamanho e na posição já predefinidas para o menu
 	if(telaAtual==MENU){
 		tocaMusica();
-		if(biri[2]<800)
-			biri[2]+=1.1;
-		if(biri[0]>640)
-			biri[0]-=5.0;
-		if(biri[1]>320)
-			biri[1]-=4.0;
-		else if(biri[2]>=800 && biri[0]<=640 && biri[1]<=320)
+		if(vetorPosicaoLogo[2]<800)
+			vetorPosicaoLogo[2]+=1.1;
+		if(vetorPosicaoLogo[0]>640)
+			vetorPosicaoLogo[0]-=5.0;
+		if(vetorPosicaoLogo[1]>320)
+			vetorPosicaoLogo[1]-=4.0;
+		else if(vetorPosicaoLogo[2]>=800 && vetorPosicaoLogo[0]<=640 && vetorPosicaoLogo[1]<=320)
 			aux=1;
 	}
 	//Aqui fica a lógica do jogo
@@ -466,19 +466,19 @@ void atualizaCena(int tempo){
 		tocaMusica();
 		deslocaFundo1-=delta1;
 		for(int i=0;i<inimigos.size();i++){
-			if(checarColisaoPlayerNaves(jogador,inimigos[i]))
+			if(checarColisaoJogadorNaves(jogador,inimigos[i]))
 				exit(0);
-			for(int j=0;j<bullets.size();j++){
-				if(checarColisao(inimigos[i],bullets[j])){
-					bullets.erase(bullets.begin()+j);
+			for(int j=0;j<balas.size();j++){
+				if(checarColisao(inimigos[i],balas[j])){
+					balas.erase(balas.begin()+j);
 					inimigos.erase(inimigos.begin()+i);
 					pontuacao+=50;
 				}
 			}
 		}
-		for(int i=0;i<enemyBullets.size();i++){
-			if(checarColisaoPlayerBala(jogador,enemyBullets[i])){
-				enemyBullets.erase(enemyBullets.begin()+i);
+		for(int i=0;i<balasInimigas.size();i++){
+			if(checarColisaoJogadorBala(jogador,balasInimigas[i])){
+				balasInimigas.erase(balasInimigas.begin()+i);
 				jogador.vida--;
 			}
 			if(jogador.vida==0){
