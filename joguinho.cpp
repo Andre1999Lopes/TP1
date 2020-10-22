@@ -33,7 +33,7 @@ int main(int argc, char **argv){
 	glutInitDisplayMode(GLUT_DOUBLE | GLUT_RGBA);
 	glutInitWindowPosition(0,0);
 	glutInitWindowSize(1920,1080);
-	glutCreateWindow("Star Wars - the game");
+	glutCreateWindow("Star Wars - o joguinho");
 	setup();
 	glutDisplayFunc(draw);
 	glutReshapeFunc(reshape);
