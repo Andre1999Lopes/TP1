@@ -50,12 +50,12 @@ void moverNaves(){
 //Em teoria, esta é a função que desenha um fundo animado. Não faço ideia do pq não tá funcionando, mas acontece
 void desenhaFundo(){
 	glEnable(GL_TEXTURE_2D);
-    glBindTexture(GL_TEXTURE_2D, fundo1);
+  glBindTexture(GL_TEXTURE_2D, fundo1);
 	glTexParameterf(fundo1, GL_TEXTURE_WRAP_T, GL_REPEAT);
 	glTexParameterf(fundo1, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
 	glTexParameterf(fundo1, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
 	glPushMatrix();
-	    glTranslatef(960,540/*deslocaFundo1*/,0);
+	    glTranslatef(960,540,0);
         glBegin(GL_TRIANGLE_FAN);
             glTexCoord2f(0,0); glVertex2f(-1920/2, -1080/2);
             glTexCoord2f(1,0); glVertex2f( 1920/2, -1080/2);
@@ -288,6 +288,15 @@ void navesAtirar(int valor){
 	}
 }
 
+void trocaTextura(){
+	if(texturaAtual==3)
+		texturaAtual=1;
+	if(texturaAtual==1)
+		jogador.textura=mfalcon;
+	else if(texturaAtual==2)
+		jogador.textura=xwing;
+}
+
 //Desenha um tiro. Se a posição do tiro ultrapassar a altura máxima da tela, o tiro é apagado da memória
 void desenhaTiro(){
 	for(int i = 0; i < balas.size();i++){
@@ -307,15 +316,6 @@ void desenhaTiro(){
 	   glPopMatrix();
 	   balas[i].y+=25;
 	}
-}
-
-void trocaTextura(){
-	if(texturaAtual==3)
-		texturaAtual=1;
-	if(texturaAtual==1)
-		jogador.textura=mfalcon;
-	else if(texturaAtual==2)
-		jogador.textura=xwing;
 }
 
 //Mesma coisa da função de cima, porém para as naves inimigas

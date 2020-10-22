@@ -449,7 +449,7 @@ void atualizaCena(int tempo){
 			sleep(2);
 		}
 	}
-	//Aqui é verificado se a logo já ficou no tamanho e na posição já predefinidas para o menu
+	//Aqui é verificado se a logo já ficou no tamanho e na posição predefinidas para o menu
 	if(telaAtual==MENU){
 		tocaMusica();
 		if(vetorPosicaoLogo[2]<800)
