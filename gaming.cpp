@@ -47,13 +47,10 @@ void moverNaves(){
 	}
 }
 
-//Em teoria, esta é a função que desenha um fundo animado. Não faço ideia do pq não tá funcionando, mas acontece
+//Função que desenha o fundo da tela do jogo
 void desenhaFundo(){
 	glEnable(GL_TEXTURE_2D);
-  glBindTexture(GL_TEXTURE_2D, fundo1);
-	glTexParameterf(fundo1, GL_TEXTURE_WRAP_T, GL_REPEAT);
-	glTexParameterf(fundo1, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
-	glTexParameterf(fundo1, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+  	glBindTexture(GL_TEXTURE_2D, fundo1);
 	glPushMatrix();
 	    glTranslatef(960,540,0);
         glBegin(GL_TRIANGLE_FAN);
